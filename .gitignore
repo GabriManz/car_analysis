@@ -56,10 +56,11 @@ Thumbs.db
 /example/
 .cursorrules
 
-# Data files (uncomment if you don't want to track data files)
-# *.csv
-# *.xlsx
-# *.json
+# Data files - exclude entire data folder (contains large files)
+/data/
+*.csv
+*.xlsx
+*.json
 
 # Output files
 *.log
