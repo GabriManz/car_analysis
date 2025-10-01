@@ -16,6 +16,75 @@ The dataset is a relational data model composed of several tables in CSV format,
 - `Ad_table_(extra).csv` - Advertisement details
 - `Image_table.csv` - Image quality and metadata
 
+### Dataset Relationships Diagram:
+
+```mermaid
+erDiagram
+    CARMODEL {
+        int model_id PK
+        string brand_name
+        string model_name
+        int year_introduced
+    }
+    
+    SALES {
+        int sales_id PK
+        int model_id FK
+        int year
+        string region
+        int units_sold
+    }
+    
+    PRICE {
+        int price_id PK
+        int model_id FK
+        int year
+        float entry_price
+    }
+    
+    TRIM {
+        int trim_id PK
+        int model_id FK
+        string trim_name
+        string engine_type
+        float engine_size
+        string transmission
+        string fuel_type
+        int doors
+        string body_type
+    }
+    
+    IMAGE {
+        int image_id PK
+        int model_id FK
+        string image_url
+        string image_type
+    }
+    
+    ADVERTISEMENT {
+        int ad_id PK
+        int model_id FK
+        int trim_id FK
+        string ad_text
+        date ad_date
+    }
+    
+    IMAGEQUALITY {
+        int quality_id PK
+        int image_id FK
+        float quality_score
+        string quality_prediction
+    }
+    
+    CARMODEL ||--o{ SALES : "has"
+    CARMODEL ||--o{ PRICE : "has"
+    CARMODEL ||--o{ TRIM : "has"
+    CARMODEL ||--o{ IMAGE : "has"
+    CARMODEL ||--o{ ADVERTISEMENT : "has"
+    TRIM ||--o{ ADVERTISEMENT : "featured_in"
+    IMAGE ||--o{ IMAGEQUALITY : "evaluated_by"
+```
+
 ## 3. Detailed Action Plan
 
 This plan follows a 5-phase structured methodology to ensure a complete and reproducible analysis.
