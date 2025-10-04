@@ -1,192 +1,87 @@
-# Project: Car Sales & Pricing Analysis
+# Car Dataset Entity Relationship Analysis
 
-## 1. Project Objective
+This document contains an automatically generated diagram that describes the inferred relationships between CSV tables in the car analysis project.
 
-*(The researcher will define the main goal of the analysis here. For example: To analyze the factors influencing the selling price of used cars and to create an interactive dashboard to explore these insights.)*
+## Dataset Overview
 
-## 2. Dataset Description
+The dataset consists of 4 CSV files containing car-related information:
 
-The dataset is a relational data model composed of several tables in CSV format, located in the `/data` folder. Key tables include information on car models, technical specifications (trims), pricing, sales figures, advertisements, and the quality of ad images. A crucial first step in preprocessing will be to join these tables to create a consolidated dataframe for analysis.
+- **Basic_table.csv**: Central reference table with 1,011 unique car models
+- **Price_table.csv**: Entry prices by model and year (6,333 records)
+- **Sales_table.csv**: Sales data by model and year 2001-2020 (773 records)
+- **Trim_table.csv**: Detailed trim specifications (335,562 records)
 
-### Available Data Files:
-- `Basic_table.csv` - Basic car information
-- `Trim_table.csv` - Technical specifications and trim details
-- `Price_table.csv` - Pricing information
-- `Sales_table.csv` - Sales figures and performance data
-- `Ad_table_(extra).csv` - Advertisement details
-- `Image_table.csv` - Image quality and metadata
+## Schema Analysis
 
-### Dataset Relationships Diagram:
+### Key Columns Identified:
+- **Primary Keys**: `Genmodel_ID` (unique identifier for car models)
+- **Foreign Keys**: `Maker`/`Automaker` (car manufacturer), `Genmodel` (model name)
+- **Naming Inconsistencies**: `Maker` vs `Automaker`, whitespace in column names
+
+### Data Quality Issues:
+- Column name inconsistencies between tables
+- Leading whitespace in Ad_table column names (e.g., `' Genmodel_ID'`)
+- Different naming conventions for the same entity
+
+## Entity Relationship Diagram
 
 ```mermaid
-erDiagram
-    CARMODEL {
-        int model_id PK
-        string brand_name
-        string model_name
-        int year_introduced
-    }
+graph TD
+    %% Central Reference Table
+    Basic[Basic_table<br/>1,011 records<br/>Automaker, Automaker_ID,<br/>Genmodel, Genmodel_ID]
     
-    SALES {
-        int sales_id PK
-        int model_id FK
-        int year
-        string region
-        int units_sold
-    }
+    %% Related Tables
+    Price[Price_table<br/>6,333 records<br/>Maker, Genmodel, Genmodel_ID,<br/>Year, Entry_price]
     
-    PRICE {
-        int price_id PK
-        int model_id FK
-        int year
-        float entry_price
-    }
+    Sales[Sales_table<br/>773 records<br/>Maker, Genmodel, Genmodel_ID,<br/>2020, 2019, ..., 2001]
     
-    TRIM {
-        int trim_id PK
-        int model_id FK
-        string trim_name
-        string engine_type
-        float engine_size
-        string transmission
-        string fuel_type
-        int doors
-        string body_type
-    }
+    Trim[Trim_table<br/>335,562 records<br/>Genmodel_ID, Maker, Genmodel,<br/>Trim, Year, Price, Gas_emission,<br/>Fuel_type, Engine_size]
     
-    IMAGE {
-        int image_id PK
-        int model_id FK
-        string image_url
-        string image_type
-    }
+    %% Relationships
+    Basic -->|Genmodel_ID<br/>Genmodel<br/>Maker→Automaker| Price
+    Basic -->|Genmodel_ID<br/>Genmodel<br/>Maker→Automaker| Sales
+    Basic -->|Genmodel_ID| Trim
     
-    ADVERTISEMENT {
-        int ad_id PK
-        int model_id FK
-        int trim_id FK
-        string ad_text
-        date ad_date
-    }
+    %% Cardinality Labels
+    Basic -.->|1:Many| Price
+    Basic -.->|1:Many| Trim
+    Basic -.->|1:1| Sales
     
-    IMAGEQUALITY {
-        int quality_id PK
-        int image_id FK
-        float quality_score
-        string quality_prediction
-    }
-    
-    CARMODEL ||--o{ SALES : "has"
-    CARMODEL ||--o{ PRICE : "has"
-    CARMODEL ||--o{ TRIM : "has"
-    CARMODEL ||--o{ IMAGE : "has"
-    CARMODEL ||--o{ ADVERTISEMENT : "has"
-    TRIM ||--o{ ADVERTISEMENT : "featured_in"
-    IMAGE ||--o{ IMAGEQUALITY : "evaluated_by"
+    %% Styling
+    style Basic fill:#e1f5fe,stroke:#01579b,stroke-width:3px
+    style Price fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    style Sales fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    style Trim fill:#fff3e0,stroke:#e65100,stroke-width:2px
 ```
 
-## 3. Detailed Action Plan
+## Relationship Details
 
-This plan follows a 5-phase structured methodology to ensure a complete and reproducible analysis.
+### Primary Relationships:
+1. **Basic_table** → **All other tables** (Central hub)
+   - **Join Key**: `Genmodel_ID` (primary identifier)
+   - **Additional Keys**: `Genmodel`, `Maker`/`Automaker` (with name mapping)
 
-### Phase 1: Setup and Initial Exploration
-- [ ] Set up the working environment (e.g., `conda` or `venv`).
-- [ ] Load all CSV datasets into pandas dataframes in an initial notebook.
-- [ ] Perform a basic inspection of each table (`.info()`, `.head()`, `.describe()`).
-- [ ] Plan the table joining strategy (`merge`).
-- [ ] Document data quality issues and missing values.
+### Cardinality Analysis:
+- **Basic → Price**: 1:Many (one model, multiple price entries by year)
+- **Basic → Trim**: 1:Many (one model, multiple trim variants)
+- **Basic → Sales**: 1:1 (one model, one sales record with yearly breakdown)
 
-### Phase 2: Data Preprocessing and Cleaning
-- [ ] Create the `01_Data_Cleaning.ipynb` notebook.
-- [ ] Join the tables to create a master dataframe.
-- [ ] Handle null values (identify, decide on a strategy - drop/impute - and apply).
-- [ ] Identify and remove duplicate rows.
-- [ ] Correct incorrect data types (e.g., dates as objects).
-- [ ] Perform feature engineering (create new columns, e.g., 'car_age' from the year).
-- [ ] Validate data integrity after cleaning.
-- [ ] Save the cleaned dataframe to the `/data` folder as a new file (e.g., `car_analysis_data.csv`).
+### Data Volume:
+- **Central Table**: 1,011 unique car models
+- **Largest Table**: Trim_table (335K records)
+- **Most Complex**: Trim_table (9 columns with detailed specifications)
 
-### Phase 3: Exploratory Data Analysis (EDA)
-- [ ] Create the `02_EDA.ipynb` notebook.
-- [ ] **Univariate Analysis:** Study the distribution of key variables (price, year, quality score, etc.) using histograms and boxplots. Identify outliers.
-- [ ] **Bivariate Analysis:** Investigate relationships between pairs of variables.
-    - [ ] Correlation matrix and heatmap for numerical variables.
-    - [ ] Scatter plots for key relationships (e.g., `quality_score` vs. `selling_price`).
-    - [ ] Grouped boxplots (e.g., `selling_price` by `brand_name`).
-    - [ ] Categorical analysis (brands, models, trim levels).
-- [ ] **Multivariate Analysis:** Explore complex relationships and interactions.
-- [ ] Statistical testing for significant differences and correlations.
-- [ ] Save the most relevant plots to the `/img` folder.
-- [ ] Document the key findings in the notebook.
+## Merge Strategy Recommendations
 
-### Phase 4: Intelligence Dashboard Development
-- [ ] Create the `app.py` script in the `/panel` folder.
-- [ ] Choose the dashboarding tool (e.g., Streamlit, Panel, Dash).
-- [ ] Design a visual narrative that tells the data's story in 3-4 key points.
-- [ ] Implement the dashboard by loading the cleaned dataset.
-- [ ] Add interactivity (filters, sliders, dropdowns) to allow users to explore the data.
-- [ ] Implement key performance indicators (KPIs) and summary statistics.
-- [ ] Add data export functionality.
-- [ ] Test dashboard functionality and user experience.
+1. **Start with Basic_table** as the central reference
+2. **Aggregate large tables** (Trim) before merging to prevent cartesian explosion
+3. **Handle naming inconsistencies** by standardizing `Maker` → `Automaker`
+4. **Clean column names** (remove leading whitespace)
+5. **Use appropriate join types** (LEFT JOIN to preserve all models)
 
-### Phase 5: Presentation Preparation
-- [ ] Structure a script for a 15-minute presentation based on the dashboard.
-- [ ] Prepare key insights and actionable recommendations.
-- [ ] Create presentation slides highlighting main findings.
-- [ ] Rehearse the presentation, ensuring the flow is logical and the conclusions are clear.
-- [ ] Prepare backup materials and alternative explanations.
+## Data Quality Considerations
 
-## 4. Repository Structure
-
-```
-Project Root/
-├── data/                    # Contains original (.csv) datasets and cleaned datasets
-├── example/                 # Contains a reference project
-├── img/                     # Stores the generated visualizations and charts
-├── notebooks/               # Contains Jupyter Notebooks for each phase of the analysis
-│   ├── 01_Data_Cleaning.ipynb
-│   └── 02_EDA.ipynb
-├── panel/                   # Contains the source code for the interactive intelligence dashboard
-│   └── app.py
-├── .gitignore              # Specifies files and folders to be ignored by Git
-├── .cursorrules            # Project coding standards and conventions
-└── README.md               # This file, containing the project plan and documentation
-```
-
-## 5. Technical Requirements
-
-### Python Environment
-- Python 3.8+
-- Key libraries: pandas, numpy, matplotlib, seaborn, plotly, streamlit/panel/dash
-- Jupyter notebooks for interactive analysis
-
-### Data Analysis Tools
-- Pandas for data manipulation
-- Matplotlib/Seaborn for static visualizations
-- Plotly for interactive plots
-- Scikit-learn for statistical analysis (if needed)
-
-### Dashboard Framework
-- Streamlit (recommended for simplicity)
-- Panel (for more advanced features)
-- Dash (for complex applications)
-
-## 6. Success Criteria
-
-- [ ] Clean, well-documented dataset ready for analysis
-- [ ] Comprehensive EDA with clear insights
-- [ ] Interactive dashboard that effectively communicates findings
-- [ ] 15-minute presentation that tells a compelling data story
-- [ ] Reproducible analysis with clear documentation
-
-## 7. Next Steps
-
-1. Begin with Phase 1: Set up environment and perform initial data exploration
-2. Document findings and plan data cleaning strategy
-3. Proceed systematically through each phase
-4. Regularly commit progress to version control
-5. Maintain clear documentation throughout the process
-
----
-
-*This project follows a structured approach to ensure comprehensive analysis and clear communication of insights. All work will be conducted in English with proper documentation and version control.*
+- **Coverage**: Not all models have data in all tables
+- **Consistency**: Different naming conventions require standardization
+- **Completeness**: Sales data available for only 773/1,011 models
+- **Memory Management**: Trim table requires aggregation strategies
