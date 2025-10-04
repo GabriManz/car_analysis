@@ -46,8 +46,22 @@ else:
 # Métricas Clave (KPIs)
 kpi1, kpi2, kpi3 = st.columns(3)
 kpi1.metric(label="Modelos Analizados", value=len(price_filtered))
-kpi2.metric(label="Ventas Totales (Unidades)", value=f"{int(sales_filtered['total_sales'].sum()):,}")
-kpi3.metric(label="Precio Promedio", value=f"€{price_filtered['price_mean'].mean():,.2f}")
+
+# Handle NaN values in total_sales
+total_sales_value = sales_filtered['total_sales'].sum()
+if pd.isna(total_sales_value):
+    total_sales_display = "0"
+else:
+    total_sales_display = f"{int(total_sales_value):,}"
+kpi2.metric(label="Ventas Totales (Unidades)", value=total_sales_display)
+
+# Handle NaN values in price_mean
+avg_price_value = price_filtered['price_mean'].mean()
+if pd.isna(avg_price_value):
+    avg_price_display = "€0.00"
+else:
+    avg_price_display = f"€{avg_price_value:,.2f}"
+kpi3.metric(label="Precio Promedio", value=avg_price_display)
 
 st.markdown("---")
 
@@ -56,24 +70,34 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader(f"Top {top_n} Modelos por Ventas")
-    top_sales = sales_filtered.nlargest(top_n, 'total_sales')
-    fig_sales = px.bar(top_sales,
-                       x='Genmodel',
-                       y='total_sales',
-                       color='Automaker',
-                       title=f'Top {top_n} Modelos por Ventas Totales',
-                       labels={'Genmodel': 'Modelo', 'total_sales': 'Ventas Totales'})
-    st.plotly_chart(fig_sales, use_container_width=True)
+    # Filter out NaN values for sales chart
+    sales_for_chart = sales_filtered.dropna(subset=['total_sales'])
+    if not sales_for_chart.empty:
+        top_sales = sales_for_chart.nlargest(top_n, 'total_sales')
+        fig_sales = px.bar(top_sales,
+                           x='Genmodel',
+                           y='total_sales',
+                           color='Automaker',
+                           title=f'Top {top_n} Modelos por Ventas Totales',
+                           labels={'Genmodel': 'Modelo', 'total_sales': 'Ventas Totales'})
+        st.plotly_chart(fig_sales, use_container_width=True)
+    else:
+        st.info("No hay datos de ventas disponibles para los filtros seleccionados.")
 
 with col2:
     st.subheader(f"Top {top_n} Fabricantes por Precio Promedio")
-    avg_price_by_maker = price_filtered.groupby('Automaker')['price_mean'].mean().sort_values(ascending=False).nlargest(top_n)
-    fig_price = px.bar(avg_price_by_maker,
-                       x=avg_price_by_maker.index,
-                       y=avg_price_by_maker.values,
-                       title=f'Top {top_n} Fabricantes por Precio Promedio',
-                       labels={'x': 'Fabricante', 'y': 'Precio Promedio (€)'})
-    st.plotly_chart(fig_price, use_container_width=True)
+    # Filter out NaN values for price chart
+    price_for_chart = price_filtered.dropna(subset=['price_mean'])
+    if not price_for_chart.empty:
+        avg_price_by_maker = price_for_chart.groupby('Automaker')['price_mean'].mean().sort_values(ascending=False).nlargest(top_n)
+        fig_price = px.bar(avg_price_by_maker,
+                           x=avg_price_by_maker.index,
+                           y=avg_price_by_maker.values,
+                           title=f'Top {top_n} Fabricantes por Precio Promedio',
+                           labels={'x': 'Fabricante', 'y': 'Precio Promedio (€)'})
+        st.plotly_chart(fig_price, use_container_width=True)
+    else:
+        st.info("No hay datos de precios disponibles para los filtros seleccionados.")
 
 # Tabla de datos
 st.markdown("---")
