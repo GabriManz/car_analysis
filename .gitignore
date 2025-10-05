@@ -57,9 +57,9 @@ Thumbs.db
 /example/
 .cursorrules
 
-# Data files - exclude entire data folder (contains large files)
-/data/
-*.csv
+# Data files - allow data folder and CSV files for Streamlit Cloud
+# /data/  # Commented out to allow data folder for deployment
+# *.csv   # Commented out to allow CSV files for deployment
 *.xlsx
 *.json
 
