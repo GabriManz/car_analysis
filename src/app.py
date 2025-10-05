@@ -12,10 +12,22 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Import core components
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 try:
     from src.business_logic import analyzer
 except ImportError:
-    from business_logic import analyzer
+    try:
+        from business_logic import analyzer
+    except ImportError:
+        # Fallback for Streamlit Cloud
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("business_logic", "src/business_logic.py")
+        business_logic = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(business_logic)
+        analyzer = business_logic.analyzer
 
 # Application configuration
 APP_CONFIG = {
