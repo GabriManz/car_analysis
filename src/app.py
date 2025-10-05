@@ -100,7 +100,14 @@ def main():
         st.markdown("## 🔧 Filters")
         
         # Get automaker list
-        automaker_list = analyzer.get_automaker_list()
+        try:
+            automaker_list = analyzer.get_automaker_list()
+            st.write(f"DEBUG: Analyzer loaded with {len(automaker_list)} automakers")
+            st.write(f"DEBUG: Basic table shape: {analyzer.basic.shape}")
+            st.write(f"DEBUG: Basic table columns: {list(analyzer.basic.columns)}")
+        except Exception as e:
+            st.error(f"Error getting automaker list: {e}")
+            automaker_list = []
         
         if automaker_list:
             selected_automakers = st.multiselect(
