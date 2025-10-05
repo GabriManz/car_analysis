@@ -124,11 +124,11 @@ class SimpleCarMarketApp:
                 automaker_list = sorted(self.analyzer.get_automaker_list())
                 
                 if automaker_list:
-                    # Automaker filter
+                    # Automaker filter - start with no selection to show all data
                     selected_automakers = st.multiselect(
-                        'Select Automakers',
+                        'Select Automakers (leave empty to show all)',
                         options=automaker_list,
-                        default=automaker_list[:5] if len(automaker_list) >= 5 else automaker_list,
+                        default=[],  # Start with no selection to show all data
                         key='filter_automakers'
                     )
                     
@@ -176,10 +176,11 @@ class SimpleCarMarketApp:
             sales_summary = self.analyzer.get_sales_summary()
             price_summary = self.analyzer.get_price_range_by_model()
             
-            # Apply filters
-            if self.filters.get('automakers'):
-                sales_summary = sales_summary[sales_summary['Automaker'].isin(self.filters['automakers'])]
-                price_summary = price_summary[price_summary['Automaker'].isin(self.filters['automakers'])]
+            # Apply filters only if automakers are selected
+            selected_automakers = self.filters.get('automakers', [])
+            if selected_automakers:  # Only filter if there are selected automakers
+                sales_summary = sales_summary[sales_summary['Automaker'].isin(selected_automakers)]
+                price_summary = price_summary[price_summary['Automaker'].isin(selected_automakers)]
             
             # Key metrics
             col1, col2, col3, col4 = st.columns(4)
@@ -284,10 +285,11 @@ class SimpleCarMarketApp:
             sales_summary = self.analyzer.get_sales_summary()
             price_summary = self.analyzer.get_price_range_by_model()
             
-            # Apply filters
-            if self.filters.get('automakers'):
-                sales_summary = sales_summary[sales_summary['Automaker'].isin(self.filters['automakers'])]
-                price_summary = price_summary[price_summary['Automaker'].isin(self.filters['automakers'])]
+            # Apply filters only if automakers are selected
+            selected_automakers = self.filters.get('automakers', [])
+            if selected_automakers:  # Only filter if there are selected automakers
+                sales_summary = sales_summary[sales_summary['Automaker'].isin(selected_automakers)]
+                price_summary = price_summary[price_summary['Automaker'].isin(selected_automakers)]
             
             # Market share analysis
             col1, col2 = st.columns(2)
@@ -330,9 +332,10 @@ class SimpleCarMarketApp:
             # Get sales data
             sales_summary = self.analyzer.get_sales_summary()
             
-            # Apply filters
-            if self.filters.get('automakers'):
-                sales_summary = sales_summary[sales_summary['Automaker'].isin(self.filters['automakers'])]
+            # Apply filters only if automakers are selected
+            selected_automakers = self.filters.get('automakers', [])
+            if selected_automakers:  # Only filter if there are selected automakers
+                sales_summary = sales_summary[sales_summary['Automaker'].isin(selected_automakers)]
             
             # Sales trends
             col1, col2 = st.columns(2)
