@@ -39,14 +39,24 @@ class CarDataAnalyzer:
     Provides SQL-like queries, statistical analysis, and business intelligence.
     """
 
-    def __init__(self, data_path: str = 'data/'):
+    def __init__(self, data_path: str = None):
         """
         Initialize the CarDataAnalyzer with enhanced capabilities.
         
         Args:
             data_path (str): Path to the directory containing CSV files
         """
-        self.data_path = data_path
+        if data_path is None:
+            # Try multiple possible data paths
+            possible_paths = ['data/', '../data/', './data/']
+            for path in possible_paths:
+                if os.path.exists(path):
+                    self.data_path = path
+                    break
+            else:
+                self.data_path = 'data/'  # Default fallback
+        else:
+            self.data_path = data_path
         self.datasets: Dict[str, pd.DataFrame] = {}
         self._load_datasets()
         self._standardize_columns()
@@ -54,6 +64,9 @@ class CarDataAnalyzer:
 
     def _load_datasets(self) -> None:
         """Load all CSV datasets with enhanced error handling and memory optimization."""
+        print(f"[DEBUG] Data path: {self.data_path}")
+        print(f"[DEBUG] Current working directory: {os.getcwd()}")
+        
         files_to_load = {
             'basic': 'Basic_table.csv',
             'trim': 'Trim_table.csv',
@@ -63,6 +76,9 @@ class CarDataAnalyzer:
 
         for name, filename in files_to_load.items():
             file_path = os.path.join(self.data_path, filename)
+            print(f"[DEBUG] Trying to load: {file_path}")
+            print(f"[DEBUG] File exists: {os.path.exists(file_path)}")
+            
             try:
                 # Load with optimized dtypes
                 df = pd.read_csv(file_path)
@@ -70,6 +86,9 @@ class CarDataAnalyzer:
                 print(f"[OK] {name.upper()}: {filename} - Shape: {self.datasets[name].shape}")
             except FileNotFoundError:
                 print(f"[ERROR] {filename} not found at {file_path}")
+                self.datasets[name] = pd.DataFrame()
+            except Exception as e:
+                print(f"[ERROR] Failed to load {filename}: {e}")
                 self.datasets[name] = pd.DataFrame()
 
         # Assign datasets to instance variables for easier access
