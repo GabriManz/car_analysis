@@ -39,7 +39,7 @@ class CarDataAnalyzer:
     Provides SQL-like queries, statistical analysis, and business intelligence.
     """
 
-    def __init__(self, data_path: str = '../data/'):
+    def __init__(self, data_path: str = 'data/'):
         """
         Initialize the CarDataAnalyzer with enhanced capabilities.
         
