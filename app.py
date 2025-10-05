@@ -1,7 +1,8 @@
 """
-🚗 Car Market Analysis Executive Dashboard - Working Version
+🚗 Car Market Analysis Executive Dashboard
 
 Professional dashboard with real data display and comprehensive features.
+Ready for Streamlit Cloud deployment.
 """
 
 import streamlit as st
@@ -12,10 +13,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Import core components
-try:
-    from src.business_logic import analyzer
-except ImportError:
-    from business_logic import analyzer
+from src.business_logic import analyzer
 
 # Application configuration
 APP_CONFIG = {
