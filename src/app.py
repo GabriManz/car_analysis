@@ -6,6 +6,7 @@ Professional dashboard with real data display and comprehensive features.
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 from typing import Dict, List, Optional, Any
 import warnings
@@ -365,8 +366,155 @@ def render_executive_summary(selected_automakers, top_n):
                 st.info("No price data available")
             st.markdown('</div>', unsafe_allow_html=True)
         
+        # Additional Charts Section
+        st.markdown('<div class="section-header">🔍 Advanced Analytics</div>', unsafe_allow_html=True)
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("💹 Price vs Sales Correlation")
+            if not sales_summary.empty and not price_summary.empty:
+                # Merge sales and price data for correlation analysis
+                correlation_data = sales_summary.merge(
+                    price_summary[['Genmodel', 'price_mean']], 
+                    on='Genmodel', 
+                    how='inner'
+                ).dropna(subset=['total_sales', 'price_mean'])
+                
+                if not correlation_data.empty:
+                    fig_scatter = px.scatter(
+                        correlation_data,
+                        x='price_mean',
+                        y='total_sales',
+                        color='Automaker',
+                        size='total_sales',
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_scatter.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Average Price (€)",
+                        yaxis_title="Total Sales"
+                    )
+                    st.plotly_chart(fig_scatter, use_container_width=True)
+                else:
+                    st.info("No correlation data available")
+            else:
+                st.info("No data available for correlation analysis")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📊 Price Distribution by Category")
+            if not price_summary.empty:
+                # Create price categories
+                price_clean = price_summary.dropna(subset=['price_mean'])
+                if not price_clean.empty:
+                    # Define price categories
+                    price_clean_copy = price_clean.copy()
+                    price_clean_copy['Price Category'] = pd.cut(
+                        price_clean_copy['price_mean'],
+                        bins=[0, 20000, 40000, 60000, 100000, float('inf')],
+                        labels=['Budget (<€20K)', 'Mid-range (€20K-€40K)', 'Premium (€40K-€60K)', 'Luxury (€60K-€100K)', 'Super Luxury (>€100K)']
+                    )
+                    
+                    category_counts = price_clean_copy['Price Category'].value_counts()
+                    
+                    fig_pie = px.pie(
+                        values=category_counts.values,
+                        names=category_counts.index,
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_pie.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450
+                    )
+                    st.plotly_chart(fig_pie, use_container_width=True)
+                else:
+                    st.info("No price data available")
+            else:
+                st.info("No price data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Third Row - Box Plot and Heatmap
+        col5, col6 = st.columns(2)
+        
+        with col5:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📦 Price Distribution by Automaker")
+            if not price_summary.empty:
+                price_clean = price_summary.dropna(subset=['price_mean'])
+                if not price_clean.empty:
+                    # Get top 10 automakers by model count
+                    top_automakers = price_clean['Automaker'].value_counts().head(10).index
+                    price_filtered = price_clean[price_clean['Automaker'].isin(top_automakers)]
+                    
+                    fig_box = px.box(
+                        price_filtered,
+                        x='Automaker',
+                        y='price_mean',
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_box.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_tickangle=-45,
+                        xaxis_title="Automaker",
+                        yaxis_title="Price (€)"
+                    )
+                    st.plotly_chart(fig_box, use_container_width=True)
+                else:
+                    st.info("No price data available")
+            else:
+                st.info("No price data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col6:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("🔥 Sales Heatmap by Year")
+            if not sales_summary.empty:
+                # Create a correlation matrix for sales data
+                sales_numeric = sales_summary.select_dtypes(include=[np.number])
+                if not sales_numeric.empty and len(sales_numeric.columns) > 1:
+                    correlation_matrix = sales_numeric.corr()
+                    
+                    fig_heatmap = px.imshow(
+                        correlation_matrix,
+                        title='',
+                        template="plotly_dark",
+                        color_continuous_scale='RdBu',
+                        aspect="auto"
+                    )
+                    fig_heatmap.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Variables",
+                        yaxis_title="Variables"
+                    )
+                    st.plotly_chart(fig_heatmap, use_container_width=True)
+                else:
+                    st.info("Insufficient numeric data for heatmap")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
         # Data table
-        st.subheader("Detailed Data")
+        st.subheader("📋 Detailed Data")
         if not sales_summary.empty:
             st.dataframe(sales_summary, use_container_width=True)
         else:
@@ -453,6 +601,87 @@ def render_market_analysis(selected_automakers):
             else:
                 st.info("No price data available")
             st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Additional Market Analytics
+        st.markdown('<div class="section-header">📈 Market Trends & Analytics</div>', unsafe_allow_html=True)
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📊 Market Share vs Average Price")
+            if not sales_summary.empty and not price_summary.empty:
+                # Calculate market share by automaker
+                market_share = sales_summary.groupby('Automaker')['total_sales'].sum()
+                total_sales_all = market_share.sum()
+                market_share_pct = (market_share / total_sales_all * 100).head(10)
+                
+                # Get average prices by automaker
+                avg_prices = price_summary.groupby('Automaker')['price_mean'].mean()
+                
+                # Merge data
+                market_analysis = pd.DataFrame({
+                    'Market Share (%)': market_share_pct,
+                    'Avg Price (€)': avg_prices
+                }).dropna()
+                
+                if not market_analysis.empty:
+                    fig_bubble = px.scatter(
+                        market_analysis,
+                        x='Avg Price (€)',
+                        y='Market Share (%)',
+                        size='Market Share (%)',
+                        color='Market Share (%)',
+                        title='',
+                        template="plotly_dark",
+                        color_continuous_scale='Viridis',
+                        hover_data={'Market Share (%)': ':.1f', 'Avg Price (€)': ':,.0f'}
+                    )
+                    fig_bubble.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Average Price (€)",
+                        yaxis_title="Market Share (%)"
+                    )
+                    st.plotly_chart(fig_bubble, use_container_width=True)
+                else:
+                    st.info("No market analysis data available")
+            else:
+                st.info("No market data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📉 Price Range Distribution")
+            if not price_summary.empty:
+                price_clean = price_summary.dropna(subset=['price_mean'])
+                if not price_clean.empty:
+                    # Create price bins for histogram
+                    fig_hist = px.histogram(
+                        price_clean,
+                        x='price_mean',
+                        nbins=30,
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=['#667eea'],
+                        marginal="box"
+                    )
+                    fig_hist.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Price (€)",
+                        yaxis_title="Number of Models"
+                    )
+                    st.plotly_chart(fig_hist, use_container_width=True)
+                else:
+                    st.info("No price data available")
+            else:
+                st.info("No price data available")
+            st.markdown('</div>', unsafe_allow_html=True)
             
     except Exception as e:
         st.error(f"Error rendering market analysis: {str(e)}")
@@ -536,6 +765,92 @@ def render_sales_performance(selected_automakers, top_n):
                     st.plotly_chart(fig_scatter, use_container_width=True)
                 else:
                     st.info("No valid sales data available")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Additional Sales Analytics
+        st.markdown('<div class="section-header">🎯 Advanced Sales Analytics</div>', unsafe_allow_html=True)
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📊 Sales Distribution Analysis")
+            if not sales_summary.empty:
+                sales_clean = sales_summary.dropna(subset=['total_sales'])
+                if not sales_clean.empty:
+                    # Create sales categories
+                    sales_clean_copy = sales_clean.copy()
+                    sales_clean_copy['Sales Category'] = pd.cut(
+                        sales_clean_copy['total_sales'],
+                        bins=[0, 1000, 5000, 10000, 50000, float('inf')],
+                        labels=['Low (<1K)', 'Medium (1K-5K)', 'High (5K-10K)', 'Very High (10K-50K)', 'Exceptional (>50K)']
+                    )
+                    
+                    category_counts = sales_clean_copy['Sales Category'].value_counts()
+                    
+                    fig_bar = px.bar(
+                        x=category_counts.index,
+                        y=category_counts.values,
+                        title='',
+                        template="plotly_dark",
+                        color=category_counts.values,
+                        color_continuous_scale='plasma'
+                    )
+                    fig_bar.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Sales Category",
+                        yaxis_title="Number of Models",
+                        xaxis_tickangle=-45
+                    )
+                    st.plotly_chart(fig_bar, use_container_width=True)
+                else:
+                    st.info("No sales data available")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📈 Sales Performance Matrix")
+            if not sales_summary.empty:
+                sales_clean = sales_summary.dropna(subset=['total_sales'])
+                if not sales_clean.empty:
+                    # Create performance matrix by automaker
+                    performance_matrix = sales_clean.groupby('Automaker').agg({
+                        'total_sales': ['sum', 'mean', 'count']
+                    }).round(0)
+                    
+                    performance_matrix.columns = ['Total Sales', 'Avg Sales per Model', 'Model Count']
+                    performance_matrix = performance_matrix.sort_values('Total Sales', ascending=False).head(15)
+                    
+                    # Create scatter plot for performance matrix
+                    fig_scatter = px.scatter(
+                        performance_matrix,
+                        x='Model Count',
+                        y='Avg Sales per Model',
+                        size='Total Sales',
+                        color='Total Sales',
+                        title='',
+                        template="plotly_dark",
+                        color_continuous_scale='viridis',
+                        hover_data={'Total Sales': ':,.0f', 'Model Count': ':.0f', 'Avg Sales per Model': ':,.0f'}
+                    )
+                    fig_scatter.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Number of Models",
+                        yaxis_title="Average Sales per Model"
+                    )
+                    st.plotly_chart(fig_scatter, use_container_width=True)
+                else:
+                    st.info("No sales data available")
             else:
                 st.info("No sales data available")
             st.markdown('</div>', unsafe_allow_html=True)
