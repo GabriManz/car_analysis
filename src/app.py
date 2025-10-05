@@ -106,6 +106,45 @@ def main():
             st.write(f"DEBUG: Analyzer data_path: {analyzer.data_path}")
             st.write(f"DEBUG: Analyzer datasets keys: {list(analyzer.datasets.keys())}")
             
+            # Check current working directory and file system
+            import os
+            st.write(f"DEBUG: Current working directory: {os.getcwd()}")
+            st.write(f"DEBUG: Data path exists: {os.path.exists(analyzer.data_path)}")
+            
+            if os.path.exists(analyzer.data_path):
+                st.write(f"DEBUG: Contents of {analyzer.data_path}:")
+                try:
+                    files = os.listdir(analyzer.data_path)
+                    st.write(f"DEBUG: Files found: {files}")
+                    csv_files = [f for f in files if f.endswith('.csv')]
+                    st.write(f"DEBUG: CSV files: {csv_files}")
+                    
+                    # Check each CSV file
+                    for csv_file in csv_files:
+                        file_path = os.path.join(analyzer.data_path, csv_file)
+                        file_size = os.path.getsize(file_path)
+                        st.write(f"DEBUG: {csv_file} - Size: {file_size} bytes")
+                        
+                except Exception as e:
+                    st.write(f"DEBUG: Error listing directory: {e}")
+            else:
+                st.write(f"DEBUG: Data path does not exist!")
+                
+                # Try to find data files in other locations
+                st.write("DEBUG: Searching for data files in other locations:")
+                search_paths = ['../data/', './data/', '/mount/src/car_analysis/data/']
+                for search_path in search_paths:
+                    if os.path.exists(search_path):
+                        st.write(f"DEBUG: Found: {search_path}")
+                        try:
+                            files = os.listdir(search_path)
+                            csv_files = [f for f in files if f.endswith('.csv')]
+                            st.write(f"DEBUG: CSV files in {search_path}: {csv_files}")
+                        except Exception as e:
+                            st.write(f"DEBUG: Error accessing {search_path}: {e}")
+                    else:
+                        st.write(f"DEBUG: Not found: {search_path}")
+            
             # Check each dataset
             for name, df in analyzer.datasets.items():
                 st.write(f"DEBUG: {name.upper()} - Shape: {df.shape}, Columns: {list(df.columns)}")
