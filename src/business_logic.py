@@ -46,40 +46,26 @@ class CarDataAnalyzer:
         Args:
             data_path (str): Path to the directory containing CSV files
         """
-        print(f"[DEBUG] CarDataAnalyzer.__init__ called with data_path: {data_path}")
-        print(f"[DEBUG] Current working directory: {os.getcwd()}")
-        
         if data_path is None:
             # Try multiple possible data paths
             possible_paths = ['data/', '../data/', './data/', '/mount/src/car_analysis/data/']
-            print(f"[DEBUG] Trying possible data paths: {possible_paths}")
             
             for path in possible_paths:
-                print(f"[DEBUG] Checking path: {path}")
                 if os.path.exists(path):
-                    print(f"[DEBUG] ✓ Found data path: {path}")
                     self.data_path = path
                     break
             else:
-                print(f"[DEBUG] ✗ No data path found, using default: data/")
                 self.data_path = 'data/'  # Default fallback
         else:
             self.data_path = data_path
-            
-        print(f"[DEBUG] Final data_path set to: {self.data_path}")
         
         self.datasets: Dict[str, pd.DataFrame] = {}
         self._load_datasets()
         self._standardize_columns()
         self._validate_data_quality()
-        
-        print(f"[DEBUG] CarDataAnalyzer initialization completed")
 
     def _load_datasets(self) -> None:
         """Load all CSV datasets with enhanced error handling and memory optimization."""
-        print(f"[DEBUG] Data path: {self.data_path}")
-        print(f"[DEBUG] Current working directory: {os.getcwd()}")
-        
         files_to_load = {
             'basic': 'Basic_table.csv',
             'trim': 'Trim_table.csv',
@@ -89,8 +75,6 @@ class CarDataAnalyzer:
 
         for name, filename in files_to_load.items():
             file_path = os.path.join(self.data_path, filename)
-            print(f"[DEBUG] Trying to load: {file_path}")
-            print(f"[DEBUG] File exists: {os.path.exists(file_path)}")
             
             try:
                 # Load with optimized dtypes
@@ -109,46 +93,6 @@ class CarDataAnalyzer:
         self.trim = self.datasets.get('trim', pd.DataFrame())
         self.price = self.datasets.get('price', pd.DataFrame())
         self.sales = self.datasets.get('sales', pd.DataFrame())
-        
-        # Debug: Print final dataset status
-        print(f"[DEBUG] Final dataset status:")
-        print(f"[DEBUG] BASIC: Shape {self.basic.shape}, Columns: {list(self.basic.columns)}")
-        print(f"[DEBUG] TRIM: Shape {self.trim.shape}, Columns: {list(self.trim.columns)}")
-        print(f"[DEBUG] PRICE: Shape {self.price.shape}, Columns: {list(self.price.columns)}")
-        print(f"[DEBUG] SALES: Shape {self.sales.shape}, Columns: {list(self.sales.columns)}")
-        
-        # Debug: Check if files exist in different locations
-        print(f"[DEBUG] Checking for data files in various locations:")
-        possible_locations = [
-            'data/',
-            '../data/',
-            './data/',
-            '/mount/src/car_analysis/data/',
-            '/app/data/',
-            '/home/appuser/data/'
-        ]
-        
-        for location in possible_locations:
-            print(f"[DEBUG] Checking location: {location}")
-            if os.path.exists(location):
-                print(f"[DEBUG] ✓ Location exists: {location}")
-                files_in_location = os.listdir(location) if os.path.isdir(location) else []
-                csv_files = [f for f in files_in_location if f.endswith('.csv')]
-                print(f"[DEBUG] CSV files found: {csv_files}")
-            else:
-                print(f"[DEBUG] ✗ Location does not exist: {location}")
-        
-        # Debug: Check current directory structure
-        print(f"[DEBUG] Current directory structure:")
-        try:
-            current_dir_contents = os.listdir('.')
-            print(f"[DEBUG] Current dir contents: {current_dir_contents}")
-            
-            if 'data' in current_dir_contents:
-                data_dir_contents = os.listdir('data')
-                print(f"[DEBUG] Data dir contents: {data_dir_contents}")
-        except Exception as e:
-            print(f"[DEBUG] Error listing directory: {e}")
 
     def _optimize_dtypes(self, df: pd.DataFrame) -> pd.DataFrame:
         """Optimize DataFrame memory usage by converting dtypes."""
