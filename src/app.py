@@ -1,534 +1,389 @@
 """
-🚗 Car Market Analysis Executive Dashboard - Advanced Application
+🚗 Car Market Analysis Executive Dashboard - Simple Version
 
-Professional executive-grade dashboard with advanced features including
-export functionality, performance optimization, responsive design,
-and comprehensive system monitoring.
+Simplified dashboard that works without complex routing.
 """
 
 import streamlit as st
 import pandas as pd
-import numpy as np
+import plotly.express as px
 from typing import Dict, List, Optional, Any
 import time
 import warnings
 warnings.filterwarnings('ignore')
 
-# Import all modular components
+# Import core components
 try:
-    # Configuration
-    from components.config.app_config import APP_CONFIG, COLOR_PALETTE, DASHBOARD_MODULES
-    
-    # Core business logic
     from business_logic import analyzer
-    from data_layer import data_processor
-    
-    # UI Components
+    from components.config.app_config import APP_CONFIG, COLOR_PALETTE
     from components.ui.layout import layout_component
-    from components.ui.sidebar import sidebar_component
-    
-    # Analytics Components
-    from components.analytics.kpi_calculator import kpi_calculator
-    from components.analytics.data_quality import data_quality
-    
-    # Visualization Components
     from components.visualizations.chart_factory import chart_factory
-    
-    # Dashboard Components
-    from components.dashboards.executive_dashboard import executive_dashboard
-    from components.dashboards.market_dashboard import market_dashboard
-    from components.dashboards.sales_dashboard import sales_dashboard
-    
-    # Utility Components
-    from components.utils import (
-        data_manager, 
-        notification_system, 
-        status_indicators, 
-        app_router,
-        export_manager,
-        performance_optimizer,
-        responsive_design
-    )
-    
 except ImportError as e:
     st.error(f"Error importing components: {str(e)}")
     st.stop()
 
 
-class CarMarketAppAdvanced:
+class SimpleCarMarketApp:
     """
-    🏢 Advanced Executive-Grade Car Market Analysis Application
+    🏢 Simple Car Market Analysis Application
     
-    Complete application with advanced features including export functionality,
-    performance optimization, responsive design, and comprehensive monitoring.
+    Streamlined version that focuses on core functionality.
     """
 
     def __init__(self):
-        """Initialize the advanced application."""
+        """Initialize the simple application."""
         self.app_config = APP_CONFIG
-        self.color_palette = COLOR_PALETTE
-        self.dashboard_modules = DASHBOARD_MODULES
-        
-        # Core components
         self.analyzer = analyzer
-        self.data_processor = data_processor
-        
-        # UI components
-        self.layout = layout_component
-        self.sidebar = sidebar_component
-        
-        # Analytics components
-        self.kpi_calc = kpi_calculator
-        self.data_quality = data_quality
-        
-        # Visualization components
         self.chart_factory = chart_factory
-        
-        # Dashboard components
-        self.executive_dashboard = executive_dashboard
-        self.market_dashboard = market_dashboard
-        self.sales_dashboard = sales_dashboard
-        
-        # Utility components
-        self.data_manager = data_manager
-        self.notification_system = notification_system
-        self.status_indicators = status_indicators
-        self.app_router = app_router
-        self.export_manager = export_manager
-        self.performance_optimizer = performance_optimizer
-        self.responsive_design = responsive_design
-        
-        # Application state
         self.filters = {}
-        self.cached_data = {}
-        self.app_initialized = False
 
     def setup_application(self) -> None:
-        """Setup the advanced application configuration."""
-        if self.app_initialized:
-            return
-        
-        # Initialize performance monitoring
-        if self.performance_optimizer:
-            self.performance_optimizer.start_performance_tracking()
-        
-        # Configure responsive design
-        if self.responsive_design:
-            self.responsive_design.inject_responsive_css()
-        
+        """Setup the application configuration."""
         # Configure Streamlit page
-        if self.layout:
-            self.layout.setup_page_config()
-            self.layout.inject_custom_css()
+        st.set_page_config(
+            page_title=self.app_config.get('title', 'Car Market Analysis Dashboard'),
+            page_icon=self.app_config.get('icon', '🚗'),
+            layout="wide",
+            initial_sidebar_state="expanded"
+        )
         
-        # Initialize session state
-        self._initialize_session_state()
-        
-        # Initialize data manager
-        if self.data_manager:
-            self.data_manager.init_session_state()
-        
-        # Show startup notification
-        if self.notification_system:
-            self.notification_system.system_startup()
-        
-        # Run initial system check
-        if self.status_indicators:
-            self.status_indicators.run_full_system_check()
-        
-        # Set application as initialized
-        self.app_initialized = True
+        # Inject custom CSS
+        self._inject_custom_css()
 
-    def _initialize_session_state(self) -> None:
-        """Initialize Streamlit session state."""
-        if 'app_filters' not in st.session_state:
-            st.session_state.app_filters = {}
-        
-        if 'app_initialized' not in st.session_state:
-            st.session_state.app_initialized = True
-        
-        if 'current_page' not in st.session_state:
-            st.session_state.current_page = 'executive_summary'
+    def _inject_custom_css(self) -> None:
+        """Inject custom CSS styling."""
+        st.markdown("""
+        <style>
+        .main-header {
+            background: linear-gradient(90deg, #0A9396 0%, #005F73 100%);
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: white;
+        }
+        .main-header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .main-header p {
+            font-size: 1.2rem;
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #005F73 0%, #0A9396 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        .metric-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
     def render_application(self) -> None:
-        """Render the complete advanced application."""
-        # Setup application
+        """Render the complete application."""
         self.setup_application()
         
-        # Render responsive dashboard
-        if self.responsive_design:
-            self.responsive_design.render_responsive_dashboard(self._render_dashboard_content)
-        else:
-            self._render_dashboard_content()
-
-    def _render_dashboard_content(self) -> None:
-        """Render dashboard content."""
         # Render header
         self._render_header()
         
-        # Render sidebar with navigation
+        # Render sidebar
         self._render_sidebar()
         
-        # Render main content using router
+        # Render main content
         self._render_main_content()
-        
-        # Render footer
-        self._render_footer()
 
     def _render_header(self) -> None:
         """Render application header."""
-        # Main header
         st.markdown(f"""
         <div class="main-header">
             <h1>{self.app_config.get('title', 'Car Market Analysis Dashboard')}</h1>
-            <p>Advanced executive-grade market intelligence and analytics platform</p>
+            <p>Professional market intelligence and analytics platform</p>
         </div>
         """, unsafe_allow_html=True)
-        
-        # Status summary in expander
-        with st.expander("🔍 System Status", expanded=False):
-            if self.status_indicators:
-                self.status_indicators.display_status_summary()
-            else:
-                st.info("Status indicators not available")
 
     def _render_sidebar(self) -> None:
-        """Render application sidebar with navigation and filters."""
+        """Render sidebar with filters."""
         with st.sidebar:
-            # Navigation using router
-            if self.app_router:
-                self.app_router.render_navigation_sidebar()
+            st.markdown("## 🔧 Filters")
             
-            # Filters section
-            self._render_filters()
-            
-            # System info
-            self._render_system_info()
-            
-            # Export section
-            self._render_export_section()
-            
-            # Performance section
-            self._render_performance_section()
-
-    def _render_filters(self) -> None:
-        """Render filter controls."""
-        st.markdown("## 🔧 Filters")
-        
-        try:
-            # Load data for filters using performance optimizer
-            if self.performance_optimizer:
-                automaker_list = self.performance_optimizer.get_lazy_data('automaker_list')
-                if not automaker_list:
-                    # Fallback to direct loading
-                    if self.data_manager and self.analyzer:
-                        automaker_list = self.data_manager.load_data_with_cache(
-                            'automaker_list',
-                            lambda: sorted(self.analyzer.get_automaker_list())
-                        )
-            else:
-                # Fallback to data manager
-                if self.data_manager and self.analyzer:
-                    automaker_list = self.data_manager.load_data_with_cache(
-                        'automaker_list',
-                        lambda: sorted(self.analyzer.get_automaker_list())
+            try:
+                # Get automaker list
+                automaker_list = sorted(self.analyzer.get_automaker_list())
+                
+                if automaker_list:
+                    # Automaker filter
+                    selected_automakers = st.multiselect(
+                        'Select Automakers',
+                        options=automaker_list,
+                        default=automaker_list[:5] if len(automaker_list) >= 5 else automaker_list,
+                        key='filter_automakers'
                     )
-                else:
-                    automaker_list = []
-            
-            if automaker_list:
-                # Automaker filter
-                selected_automakers = st.multiselect(
-                    'Select Automakers',
-                    options=automaker_list,
-                    default=automaker_list[:5] if len(automaker_list) >= 5 else automaker_list,
-                    key='filter_automakers'
-                )
-                
-                # Top N filter
-                top_n = st.slider(
-                    'Top N Results',
-                    min_value=5,
-                    max_value=50,
-                    value=15,
-                    step=5,
-                    key='filter_top_n'
-                )
-                
-                # Price range filter
-                if self.performance_optimizer:
-                    price_data = self.performance_optimizer.get_lazy_data('price_data')
-                else:
-                    price_data = self.data_manager.load_price_data() if self.data_manager else pd.DataFrame()
-                
-                if not price_data.empty and 'price_mean' in price_data.columns:
-                    min_price = float(price_data['price_mean'].min())
-                    max_price = float(price_data['price_mean'].max())
                     
-                    price_range = st.slider(
-                        'Price Range (€)',
-                        min_value=min_price,
-                        max_price=max_price,
-                        value=(min_price, max_price),
-                        key='filter_price_range'
+                    # Top N filter
+                    top_n = st.slider(
+                        'Top N Results',
+                        min_value=5,
+                        max_value=50,
+                        value=15,
+                        step=5,
+                        key='filter_top_n'
                     )
-                
-                # Update filters
-                self.filters = {
-                    'automakers': selected_automakers,
-                    'top_n': top_n,
-                    'price_range': price_range if 'price_range' in locals() else None
-                }
-                
-                st.session_state.app_filters = self.filters
-                
-            else:
-                st.warning("No automaker data available for filtering")
-                
-        except Exception as e:
-            st.error(f"Error loading filter data: {str(e)}")
-            if self.notification_system:
-                self.notification_system.data_error(str(e))
-
-    def _render_system_info(self) -> None:
-        """Render system information."""
-        st.markdown("## ℹ️ System Info")
-        
-        # Cache info
-        if self.data_manager:
-            cache_info = self.data_manager.get_cache_info()
-            st.metric("Cache Size", f"{cache_info['total_size_mb']:.1f} MB")
-            st.metric("Cache Utilization", f"{cache_info['utilization_percent']:.1f}%")
-        
-        # Notifications
-        if self.notification_system:
-            notification_stats = self.notification_system.get_notification_stats()
-            st.metric("Active Notifications", notification_stats['total_active'])
-            st.metric("Unread Notifications", notification_stats['total_unread'])
-        
-        # Router stats
-        if self.app_router:
-            router_stats = self.app_router.get_route_stats()
-            st.metric("Total Routes", router_stats['total_routes'])
-            st.metric("Current Page", router_stats['current_page'])
-
-    def _render_export_section(self) -> None:
-        """Render export section."""
-        st.markdown("## 📤 Export")
-        
-        if self.export_manager:
-            # Quick export buttons
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                if st.button("📊 Export Data", help="Export current data"):
-                    self._handle_quick_export()
-            
-            with col2:
-                if st.button("📋 Export Report", help="Export comprehensive report"):
-                    self._handle_report_export()
-            
-            # Export manager interface
-            if st.button("⚙️ Export Manager", help="Advanced export options"):
-                st.session_state.show_export_manager = True
-
-    def _render_performance_section(self) -> None:
-        """Render performance section."""
-        st.markdown("## ⚡ Performance")
-        
-        if self.performance_optimizer:
-            memory_stats = self.performance_optimizer.memory_manager.get_memory_stats()
-            st.metric("Memory Usage", f"{memory_stats['current_mb']:.1f} MB")
-            st.metric("Available Memory", f"{memory_stats['available_mb']:.1f} MB")
-            
-            # Performance actions
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                if st.button("🧹 Clear Cache", help="Clear all caches"):
-                    self.performance_optimizer.clear_lazy_cache()
-                    if self.notification_system:
-                        self.notification_system.info("Cache cleared successfully")
-            
-            with col2:
-                if st.button("🗑️ Memory Cleanup", help="Perform memory cleanup"):
-                    cleanup_stats = self.performance_optimizer.memory_manager.perform_cleanup()
-                    if self.notification_system:
-                        self.notification_system.info(f"Memory cleanup: {cleanup_stats['memory_saved_mb']:.1f}MB saved")
+                    
+                    # Update filters
+                    self.filters = {
+                        'automakers': selected_automakers,
+                        'top_n': top_n
+                    }
+                else:
+                    st.warning("No automaker data available")
+                    
+            except Exception as e:
+                st.error(f"Error loading filter data: {str(e)}")
 
     def _render_main_content(self) -> None:
-        """Render main content using the router."""
-        # Show notifications
-        if self.notification_system:
-            self.notification_system.display_notifications(max_display=3)
+        """Render main content."""
+        # Dashboard tabs
+        tab1, tab2, tab3 = st.tabs(["📊 Executive Summary", "🌍 Market Analysis", "📈 Sales Performance"])
         
-        # Show export manager if requested
-        if st.session_state.get('show_export_manager', False):
-            self._render_export_manager()
-            return
+        with tab1:
+            self._render_executive_summary()
         
-        # Render current page using router
-        if self.app_router:
-            self.app_router.render_current_page()
-        else:
-            st.error("Application router not available")
+        with tab2:
+            self._render_market_analysis()
+        
+        with tab3:
+            self._render_sales_performance()
 
-    def _render_export_manager(self) -> None:
-        """Render export manager interface."""
-        st.markdown("## 📤 Export Manager")
+    def _render_executive_summary(self) -> None:
+        """Render executive summary dashboard."""
+        st.markdown("## 📊 Executive Summary")
         
-        if self.export_manager:
-            self.export_manager.render_export_interface()
-            
-            # Close button
-            if st.button("❌ Close Export Manager"):
-                st.session_state.show_export_manager = False
-                st.rerun()
-        else:
-            st.error("Export manager not available")
-
-    def _handle_quick_export(self) -> None:
-        """Handle quick data export."""
         try:
-            if self.export_manager:
-                # Export sales data
-                result = self.export_manager.export_data(
-                    'custom_analysis',
-                    'csv',
-                    st.session_state.get('app_filters', {}),
-                    include_metadata=True
-                )
+            # Get data summaries
+            sales_summary = self.analyzer.get_sales_summary()
+            price_summary = self.analyzer.get_price_range_by_model()
+            
+            # Apply filters
+            if self.filters.get('automakers'):
+                sales_summary = sales_summary[sales_summary['Automaker'].isin(self.filters['automakers'])]
+                price_summary = price_summary[price_summary['Automaker'].isin(self.filters['automakers'])]
+            
+            # Key metrics
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-label">Total Models</div>
+                    <div class="metric-value">{}</div>
+                </div>
+                """.format(len(price_summary)), unsafe_allow_html=True)
+            
+            with col2:
+                total_sales = sales_summary['total_sales'].sum() if not sales_summary.empty else 0
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">Total Sales</div>
+                    <div class="metric-value">{int(total_sales):,}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col3:
+                avg_price = price_summary['price_mean'].mean() if not price_summary.empty else 0
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">Avg Price</div>
+                    <div class="metric-value">€{avg_price:,.0f}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col4:
+                automakers_count = sales_summary['Automaker'].nunique() if not sales_summary.empty else 0
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">Automakers</div>
+                    <div class="metric-value">{automakers_count}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            st.markdown("---")
+            
+            # Charts
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader("Top Models by Sales")
+                if not sales_summary.empty:
+                    top_sales = sales_summary.nlargest(self.filters.get('top_n', 15), 'total_sales')
+                    fig_sales = px.bar(
+                        top_sales,
+                        x='Genmodel',
+                        y='total_sales',
+                        color='Automaker',
+                        title='Top Models by Sales',
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_sales.update_layout(
+                        xaxis_tickangle=-45,
+                        height=400,
+                        showlegend=True
+                    )
+                    st.plotly_chart(fig_sales, use_container_width=True)
+                else:
+                    st.info("No sales data available")
+            
+            with col2:
+                st.subheader("Price Distribution by Automaker")
+                if not price_summary.empty:
+                    avg_price_by_maker = price_summary.groupby('Automaker')['price_mean'].mean().sort_values(ascending=False)
+                    fig_price = px.bar(
+                        x=avg_price_by_maker.index,
+                        y=avg_price_by_maker.values,
+                        title='Average Price by Automaker',
+                        color=avg_price_by_maker.values,
+                        color_continuous_scale='Viridis'
+                    )
+                    fig_price.update_layout(
+                        xaxis_tickangle=-45,
+                        height=400,
+                        showlegend=False
+                    )
+                    st.plotly_chart(fig_price, use_container_width=True)
+                else:
+                    st.info("No price data available")
+            
+            # Data table
+            st.subheader("Detailed Data")
+            if not sales_summary.empty:
+                st.dataframe(sales_summary, use_container_width=True)
+            else:
+                st.info("No data to display")
                 
-                # Download button
-                st.download_button(
-                    label=f"📥 Download {result['filename']}",
-                    data=result['content'],
-                    file_name=result['filename'],
-                    mime=result['mime_type']
-                )
-                
-                if self.notification_system:
-                    self.notification_system.success(f"Export generated: {result['filename']}")
+        except Exception as e:
+            st.error(f"Error rendering executive summary: {str(e)}")
+
+    def _render_market_analysis(self) -> None:
+        """Render market analysis dashboard."""
+        st.markdown("## 🌍 Market Analysis")
+        
+        try:
+            # Get market data
+            sales_summary = self.analyzer.get_sales_summary()
+            price_summary = self.analyzer.get_price_range_by_model()
+            
+            # Apply filters
+            if self.filters.get('automakers'):
+                sales_summary = sales_summary[sales_summary['Automaker'].isin(self.filters['automakers'])]
+                price_summary = price_summary[price_summary['Automaker'].isin(self.filters['automakers'])]
+            
+            # Market share analysis
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader("Market Share by Automaker")
+                if not sales_summary.empty:
+                    market_share = sales_summary.groupby('Automaker')['total_sales'].sum().sort_values(ascending=False)
+                    fig_pie = px.pie(
+                        values=market_share.values,
+                        names=market_share.index,
+                        title='Market Share Distribution'
+                    )
+                    st.plotly_chart(fig_pie, use_container_width=True)
+                else:
+                    st.info("No market data available")
+            
+            with col2:
+                st.subheader("Price Range Analysis")
+                if not price_summary.empty:
+                    fig_hist = px.histogram(
+                        price_summary,
+                        x='price_mean',
+                        nbins=20,
+                        title='Price Distribution',
+                        color_discrete_sequence=['#0A9396']
+                    )
+                    st.plotly_chart(fig_hist, use_container_width=True)
+                else:
+                    st.info("No price data available")
             
         except Exception as e:
-            st.error(f"Export failed: {str(e)}")
-            if self.notification_system:
-                self.notification_system.error(f"Export failed: {str(e)}")
+            st.error(f"Error rendering market analysis: {str(e)}")
 
-    def _handle_report_export(self) -> None:
-        """Handle comprehensive report export."""
+    def _render_sales_performance(self) -> None:
+        """Render sales performance dashboard."""
+        st.markdown("## 📈 Sales Performance")
+        
         try:
-            if self.export_manager:
-                # Export executive summary
-                result = self.export_manager.export_data(
-                    'executive_summary',
-                    'xlsx',
-                    st.session_state.get('app_filters', {}),
-                    include_metadata=True
-                )
-                
-                # Download button
-                st.download_button(
-                    label=f"📥 Download {result['filename']}",
-                    data=result['content'],
-                    file_name=result['filename'],
-                    mime=result['mime_type']
-                )
-                
-                if self.notification_system:
-                    self.notification_system.success(f"Report generated: {result['filename']}")
+            # Get sales data
+            sales_summary = self.analyzer.get_sales_summary()
+            
+            # Apply filters
+            if self.filters.get('automakers'):
+                sales_summary = sales_summary[sales_summary['Automaker'].isin(self.filters['automakers'])]
+            
+            # Sales trends
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader("Top Performing Models")
+                if not sales_summary.empty:
+                    top_models = sales_summary.nlargest(self.filters.get('top_n', 15), 'total_sales')
+                    fig_bar = px.bar(
+                        top_models,
+                        x='total_sales',
+                        y='Genmodel',
+                        orientation='h',
+                        color='Automaker',
+                        title='Top Performing Models',
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_bar.update_layout(height=400)
+                    st.plotly_chart(fig_bar, use_container_width=True)
+                else:
+                    st.info("No sales data available")
+            
+            with col2:
+                st.subheader("Sales by Automaker")
+                if not sales_summary.empty:
+                    sales_by_maker = sales_summary.groupby('Automaker')['total_sales'].sum().sort_values(ascending=False)
+                    fig_scatter = px.scatter(
+                        x=sales_by_maker.index,
+                        y=sales_by_maker.values,
+                        title='Total Sales by Automaker',
+                        color=sales_by_maker.values,
+                        color_continuous_scale='Viridis',
+                        size=sales_by_maker.values
+                    )
+                    fig_scatter.update_layout(
+                        xaxis_tickangle=-45,
+                        height=400
+                    )
+                    st.plotly_chart(fig_scatter, use_container_width=True)
+                else:
+                    st.info("No sales data available")
             
         except Exception as e:
-            st.error(f"Report generation failed: {str(e)}")
-            if self.notification_system:
-                self.notification_system.error(f"Report generation failed: {str(e)}")
-
-    def _render_footer(self) -> None:
-        """Render application footer."""
-        st.markdown("---")
-        
-        # Footer with app info
-        footer_cols = st.columns(4)
-        
-        with footer_cols[0]:
-            st.markdown(f"**Version:** {self.app_config.get('version', '2.0.0')}")
-        
-        with footer_cols[1]:
-            st.markdown(f"**Author:** {self.app_config.get('author', 'Upgrade Hub')}")
-        
-        with footer_cols[2]:
-            # Performance info
-            if self.performance_optimizer:
-                memory_stats = self.performance_optimizer.memory_manager.get_memory_stats()
-                st.metric("Memory", f"{memory_stats['current_mb']:.1f} MB")
-        
-        with footer_cols[3]:
-            # Debug info
-            if st.button("🔧 Debug Info"):
-                self._show_debug_info()
-
-    def _show_debug_info(self) -> None:
-        """Show debug information."""
-        debug_info = self.get_application_status()
-        st.json(debug_info)
-
-    def get_application_status(self) -> Dict[str, Any]:
-        """Get comprehensive application status."""
-        status = {
-            'app_config': self.app_config,
-            'filters': self.filters,
-            'app_initialized': self.app_initialized,
-            'components_status': {
-                'analyzer': self.analyzer is not None,
-                'data_processor': self.data_processor is not None,
-                'layout': self.layout is not None,
-                'sidebar': self.sidebar is not None,
-                'kpi_calculator': self.kpi_calc is not None,
-                'data_quality': self.data_quality is not None,
-                'chart_factory': self.chart_factory is not None,
-                'executive_dashboard': self.executive_dashboard is not None,
-                'market_dashboard': self.market_dashboard is not None,
-                'sales_dashboard': self.sales_dashboard is not None,
-                'data_manager': self.data_manager is not None,
-                'notification_system': self.notification_system is not None,
-                'status_indicators': self.status_indicators is not None,
-                'app_router': self.app_router is not None,
-                'export_manager': self.export_manager is not None,
-                'performance_optimizer': self.performance_optimizer is not None,
-                'responsive_design': self.responsive_design is not None
-            }
-        }
-        
-        # Add component-specific status
-        if self.status_indicators:
-            status['system_health'] = self.status_indicators.get_system_health()
-        
-        if self.data_manager:
-            status['cache_info'] = self.data_manager.get_cache_info()
-        
-        if self.notification_system:
-            status['notification_stats'] = self.notification_system.get_notification_stats()
-        
-        if self.app_router:
-            status['router_status'] = self.app_router.get_router_status()
-        
-        if self.export_manager:
-            status['export_stats'] = self.export_manager.get_export_stats()
-        
-        if self.performance_optimizer:
-            status['performance_stats'] = self.performance_optimizer.get_optimizer_status()
-        
-        if self.responsive_design:
-            status['responsive_config'] = self.responsive_design.get_responsive_config()
-        
-        return status
+            st.error(f"Error rendering sales performance: {str(e)}")
 
 
 def main():
     """Main application entry point."""
     try:
-        # Create and run the advanced application
-        app = CarMarketAppAdvanced()
+        # Create and run the simple application
+        app = SimpleCarMarketApp()
         app.render_application()
         
     except Exception as e:
