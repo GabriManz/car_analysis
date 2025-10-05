@@ -101,12 +101,35 @@ def main():
         
         # Get automaker list
         try:
+            st.write("=== COMPREHENSIVE DEBUG INFO ===")
+            st.write(f"DEBUG: Analyzer object type: {type(analyzer)}")
+            st.write(f"DEBUG: Analyzer data_path: {analyzer.data_path}")
+            st.write(f"DEBUG: Analyzer datasets keys: {list(analyzer.datasets.keys())}")
+            
+            # Check each dataset
+            for name, df in analyzer.datasets.items():
+                st.write(f"DEBUG: {name.upper()} - Shape: {df.shape}, Columns: {list(df.columns)}")
+                if not df.empty:
+                    st.write(f"DEBUG: {name.upper()} - First 3 rows:")
+                    st.write(df.head(3))
+            
+            # Check instance variables
+            st.write(f"DEBUG: analyzer.basic shape: {analyzer.basic.shape}")
+            st.write(f"DEBUG: analyzer.basic columns: {list(analyzer.basic.columns)}")
+            st.write(f"DEBUG: analyzer.basic empty: {analyzer.basic.empty}")
+            
+            if not analyzer.basic.empty:
+                st.write("DEBUG: Basic table sample:")
+                st.write(analyzer.basic.head())
+            
             automaker_list = analyzer.get_automaker_list()
             st.write(f"DEBUG: Analyzer loaded with {len(automaker_list)} automakers")
-            st.write(f"DEBUG: Basic table shape: {analyzer.basic.shape}")
-            st.write(f"DEBUG: Basic table columns: {list(analyzer.basic.columns)}")
+            st.write(f"DEBUG: Automaker list: {automaker_list[:10]}...")  # Show first 10
         except Exception as e:
             st.error(f"Error getting automaker list: {e}")
+            import traceback
+            st.write("Full traceback:")
+            st.code(traceback.format_exc())
             automaker_list = []
         
         if automaker_list:
