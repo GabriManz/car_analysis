@@ -516,7 +516,19 @@ def render_executive_summary(selected_automakers, top_n):
         # Data table
         st.subheader("📋 Detailed Data")
         if not sales_summary.empty:
-            st.dataframe(sales_summary, use_container_width=True)
+            st.dataframe(
+                sales_summary.style.format(
+                    {
+                        'price_mean': "€{:,.0f}",
+                        'price_min': "€{:,.0f}",
+                        'price_max': "€{:,.0f}",
+                        'total_sales': "{:,.0f}",
+                        'avg_sales': "{:,.1f}"
+                    },
+                    na_rep="N/A"
+                ),
+                use_container_width=True
+            )
         else:
             st.info("No data to display")
             
