@@ -43,10 +43,10 @@ if basic_df is not None:
         st.metric("Total Cars", len(basic_df))
     
     with col2:
-        st.metric("Unique Brands", basic_df['Brand'].nunique())
+        st.metric("Unique Brands", basic_df['Automaker'].nunique())
     
     with col3:
-        st.metric("Unique Models", basic_df['Model'].nunique())
+        st.metric("Unique Models", basic_df['Genmodel'].nunique())
     
     with col4:
         if price_df is not None:
@@ -55,7 +55,7 @@ if basic_df is not None:
     
     # Brand distribution
     st.subheader("📊 Brand Distribution")
-    brand_counts = basic_df['Brand'].value_counts().head(10)
+    brand_counts = basic_df['Automaker'].value_counts().head(10)
     
     fig = px.bar(
         x=brand_counts.values,
@@ -69,7 +69,7 @@ if basic_df is not None:
     
     # Model distribution
     st.subheader("🚙 Model Distribution")
-    model_counts = basic_df['Model'].value_counts().head(10)
+    model_counts = basic_df['Genmodel'].value_counts().head(10)
     
     fig2 = px.bar(
         x=model_counts.values,
