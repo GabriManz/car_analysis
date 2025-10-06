@@ -78,7 +78,6 @@ class CarDataAnalyzer:
         """Load all CSV datasets with enhanced error handling and memory optimization."""
         files_to_load = {
             'basic': 'Basic_table.csv',
-            'trim': 'Trim_table.csv',
             'price': 'Price_table.csv',
             'sales': 'Sales_table.csv'
         }
@@ -124,7 +123,6 @@ class CarDataAnalyzer:
 
         # Assign datasets to instance variables for easier access
         self.basic = self.datasets.get('basic', pd.DataFrame())
-        self.trim = self.datasets.get('trim', pd.DataFrame())
         self.price = self.datasets.get('price', pd.DataFrame())
         self.sales = self.datasets.get('sales', pd.DataFrame())
 
