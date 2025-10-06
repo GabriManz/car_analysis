@@ -366,6 +366,58 @@ def render_executive_summary(selected_automakers, top_n):
                 st.info("No price data available")
             st.markdown('</div>', unsafe_allow_html=True)
         
+        st.markdown("---")  # Separador visual
+        
+        # --- NUEVA SECCIÓN PARA EL TREEMAP ---
+        st.subheader("📊 Sales Volume by Market Segment")
+        try:
+            sales_by_segment_data = analyzer.get_sales_by_segment()
+            if not sales_by_segment_data.empty:
+                # Crear el Treemap
+                fig_treemap = px.treemap(
+                    sales_by_segment_data,
+                    path=[px.Constant("All Segments"), 'Price_Segment'],
+                    values='total_sales',
+                    color='Price_Segment',
+                    title='Contribution of Each Price Segment to Total Sales',
+                    color_discrete_map={
+                        'Budget': '#2a9d8f',
+                        'Mid-Range': '#e9c46a',
+                        'Premium': '#f4a261',
+                        'Luxury': '#e76f51',
+                        '(?)': '#a9a9a9'  # Color para el total
+                    },
+                    template="plotly_dark"
+                )
+                fig_treemap.update_layout(
+                    margin=dict(t=50, l=25, r=25, b=25),
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='white'),
+                    height=500
+                )
+                st.plotly_chart(fig_treemap, use_container_width=True)
+                
+                # Añadir información contextual sobre el Treemap
+                st.markdown("""
+                **📊 Market Segment Analysis:**
+                - **Size of rectangles**: Represents total sales volume for each segment
+                - **Color coding**: Consistent with market segmentation visualization
+                - **Market dominance**: Larger segments drive the majority of sales volume
+                """)
+                
+                # Mostrar estadísticas del Treemap
+                total_sales_all_segments = sales_by_segment_data['total_sales'].sum()
+                st.markdown("**🎯 Segment Contribution:**")
+                for _, row in sales_by_segment_data.iterrows():
+                    percentage = (row['total_sales'] / total_sales_all_segments) * 100
+                    st.markdown(f"- **{row['Price_Segment']}**: {row['total_sales']:,.0f} units ({percentage:.1f}%)")
+            else:
+                st.info("Sales by segment data is not available.")
+        except Exception as e:
+            st.error(f"Error rendering sales by segment treemap: {str(e)}")
+        # ------------------------------------
+        
         # Additional Charts Section
         st.markdown('<div class="section-header">🔍 Advanced Analytics</div>', unsafe_allow_html=True)
         
@@ -694,6 +746,77 @@ def render_market_analysis(selected_automakers):
             else:
                 st.info("No price data available")
             st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Market Positioning by Price Segment
+        st.markdown("---")  # Separador visual
+        st.subheader("Market Positioning by Price Segment")
+
+        try:
+            # Obtener datos segmentados desde la lógica de negocio
+            segmented_data = analyzer.get_price_segments()
+
+            if not segmented_data.empty and 'Price_Segment' in segmented_data.columns:
+                # Contar modelos por fabricante y segmento
+                segment_counts = segmented_data.groupby(['Automaker', 'Price_Segment']).size().reset_index(name='Model_Count')
+                
+                # Ordenar fabricantes por número total de modelos para una mejor visualización
+                top_automakers = segmented_data['Automaker'].value_counts().nlargest(20).index
+                segment_counts_top = segment_counts[segment_counts['Automaker'].isin(top_automakers)]
+
+                # Crear el gráfico de barras apiladas
+                fig_segment = px.bar(
+                    segment_counts_top,
+                    x='Automaker',
+                    y='Model_Count',
+                    color='Price_Segment',
+                    title='Number of Models per Automaker by Price Segment (Top 20)',
+                    labels={'Model_Count': 'Number of Models', 'Automaker': 'Automaker'},
+                    category_orders={
+                        "Price_Segment": ["Budget", "Mid-Range", "Premium", "Luxury"]
+                    },
+                    color_discrete_map={
+                        'Budget': '#2a9d8f',
+                        'Mid-Range': '#e9c46a',
+                        'Premium': '#f4a261',
+                        'Luxury': '#e76f51'
+                    },
+                    template="plotly_dark"
+                )
+                
+                fig_segment.update_layout(
+                    xaxis_tickangle=-45, 
+                    height=500,
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='white'),
+                    xaxis_title="Automaker",
+                    yaxis_title="Number of Models",
+                    legend_title="Price Segment"
+                )
+                
+                st.plotly_chart(fig_segment, use_container_width=True)
+                
+                # Añadir información adicional sobre la segmentación
+                st.markdown("""
+                **📊 Market Segmentation Insights:**
+                - **Budget**: Bottom 25% of price range (most affordable models)
+                - **Mid-Range**: 25th-75th percentile (mainstream market)
+                - **Premium**: 75th-95th percentile (higher-end positioning)
+                - **Luxury**: Top 5% of price range (ultra-luxury models)
+                """)
+                
+                # Mostrar estadísticas de segmentación
+                if not segment_counts_top.empty:
+                    st.markdown("**🎯 Segment Distribution:**")
+                    segment_totals = segment_counts_top.groupby('Price_Segment')['Model_Count'].sum().sort_values(ascending=False)
+                    for segment, count in segment_totals.items():
+                        percentage = (count / segment_totals.sum()) * 100
+                        st.markdown(f"- **{segment}**: {count} models ({percentage:.1f}%)")
+            else:
+                st.info("Price segmentation data is not available.")
+                
+        except Exception as e:
+            st.error(f"Error rendering market segmentation: {str(e)}")
             
     except Exception as e:
         st.error(f"Error rendering market analysis: {str(e)}")
@@ -714,6 +837,114 @@ def render_sales_performance(selected_automakers, top_n):
         
         # Sales trends
         st.markdown('<div class="section-header">📈 Advanced Sales Performance Analytics</div>', unsafe_allow_html=True)
+        
+        # Sales Trend by Automaker
+        st.subheader("📈 Sales Trend by Automaker")
+        
+        # Preparamos los datos para el gráfico de tendencias competitivas
+        if not sales_summary.empty:
+            # Necesitamos obtener los datos originales de ventas para el análisis temporal
+            sales_data = analyzer.sales  # Acceso directo a los datos de ventas
+            
+            if not sales_data.empty:
+                # Transformamos los datos de ventas de formato ancho a largo
+                year_columns = [col for col in sales_data.columns if col.isdigit()]
+                
+                if year_columns:
+                    sales_long = pd.melt(
+                        sales_data,
+                        id_vars=['Automaker', 'Genmodel', 'Genmodel_ID'],
+                        value_vars=year_columns,
+                        var_name='Year',
+                        value_name='Sales_Volume'
+                    )
+                    
+                    # Aplicamos filtros si están seleccionados
+                    if selected_automakers:
+                        sales_long = sales_long[sales_long['Automaker'].isin(selected_automakers)]
+                    
+                    # Agrupamos por año y fabricante para obtener las ventas por fabricante
+                    yearly_sales_by_automaker = sales_long.groupby(['Year', 'Automaker'])['Sales_Volume'].sum().reset_index()
+                    yearly_sales_by_automaker['Year'] = pd.to_numeric(yearly_sales_by_automaker['Year'])  # Aseguramos que el año sea numérico
+
+                    # Creamos el gráfico de líneas competitivo con Plotly Express
+                    fig_trend = px.line(
+                        yearly_sales_by_automaker,
+                        x='Year',
+                        y='Sales_Volume',
+                        color='Automaker',  # ¡Esta es la línea clave para múltiples líneas!
+                        title='Sales Volume Trend by Automaker (2001-2020)',
+                        markers=True,  # Añade puntos en cada dato anual
+                        labels={'Sales_Volume': 'Total Sales', 'Year': 'Year'},
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3  # Paleta de colores distintiva
+                    )
+                    
+                    fig_trend.update_layout(
+                        xaxis_title='Year',
+                        yaxis_title='Total Sales Volume',
+                        showlegend=True,  # Mostramos la leyenda para identificar fabricantes
+                        legend=dict(
+                            orientation="h",
+                            yanchor="bottom",
+                            y=1.02,
+                            xanchor="right",
+                            x=1,
+                            font=dict(color="white", size=10)
+                        ),
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=500  # Aumentamos altura para acomodar la leyenda
+                    )
+                    
+                    # Añadimos anotaciones para eventos importantes (solo si hay datos)
+                    if 2016 in yearly_sales_by_automaker['Year'].values:
+                        # Calculamos el promedio de ventas en 2016 para posicionar la anotación
+                        sales_2016 = yearly_sales_by_automaker[yearly_sales_by_automaker['Year'] == 2016]['Sales_Volume'].mean()
+                        fig_trend.add_annotation(
+                            x=2016,
+                            y=sales_2016,
+                            text="Peak Year (2016)",
+                            showarrow=True,
+                            arrowhead=2,
+                            arrowcolor="red",
+                            bgcolor="rgba(255,255,255,0.8)",
+                            bordercolor="red",
+                            font=dict(color="black", size=12)
+                        )
+                    
+                    # Mostramos el gráfico
+                    st.plotly_chart(fig_trend, use_container_width=True)
+                    
+                    # Añadimos información adicional sobre las tendencias competitivas
+                    st.markdown("""
+                    **📊 Competitive Analysis Insights:**
+                    - **Market Leaders**: Compare performance of different automakers over time
+                    - **Growth Patterns**: Identify which brands show consistent growth vs volatility
+                    - **Market Share Evolution**: See how brand positions changed from 2001-2020
+                    - **Crisis Impact**: Observe how different brands responded to market challenges
+                    - **Peak Performance**: 2016 marked the highest overall market volume
+                    """)
+                    
+                    # Añadimos estadísticas rápidas si hay datos filtrados
+                    if selected_automakers:
+                        st.markdown("**🎯 Selected Automakers Analysis:**")
+                        for automaker in selected_automakers:
+                            automaker_data = yearly_sales_by_automaker[yearly_sales_by_automaker['Automaker'] == automaker]
+                            if not automaker_data.empty:
+                                peak_year = automaker_data.loc[automaker_data['Sales_Volume'].idxmax(), 'Year']
+                                peak_sales = automaker_data['Sales_Volume'].max()
+                                total_sales = automaker_data['Sales_Volume'].sum()
+                                st.markdown(f"- **{automaker}**: Peak in {peak_year} ({peak_sales:,.0f} units), Total: {total_sales:,.0f} units")
+                    
+                    st.markdown("---")  # Añadimos un separador visual
+                else:
+                    st.info("No yearly sales data available to display trend.")
+            else:
+                st.info("No sales data available for trend analysis.")
+        else:
+            st.info("No filtered sales data available to display trend.")
         
         col1, col2 = st.columns(2)
         

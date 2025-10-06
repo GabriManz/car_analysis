@@ -16,6 +16,22 @@ from sklearn.decomposition import PCA
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import data cleaning functions
+try:
+    from .data_cleaner import clean_automaker_data, validate_automaker_consistency, print_cleaning_report
+except ImportError:
+    try:
+        # Try direct import if relative import fails
+        from data_cleaner import clean_automaker_data, validate_automaker_consistency, print_cleaning_report
+    except ImportError:
+        # Fallback if import fails
+        def clean_automaker_data(df):
+            return df
+        def validate_automaker_consistency(df):
+            return {'status': 'error', 'message': 'Data cleaning module not available'}
+        def print_cleaning_report(report):
+            pass
+
 # Import configuration
 try:
     from .components.config.app_config import (
@@ -77,9 +93,33 @@ class CarDataAnalyzer:
             file_path = os.path.join(self.data_path, filename)
             
             try:
-                # Load with optimized dtypes
-                df = pd.read_csv(file_path)
+                # Load with optimized dtypes and proper encoding
+                try:
+                    df = pd.read_csv(file_path, encoding='utf-8')
+                except UnicodeDecodeError:
+                    try:
+                        df = pd.read_csv(file_path, encoding='latin-1')
+                    except UnicodeDecodeError:
+                        df = pd.read_csv(file_path, encoding='cp1252')
+                
                 self.datasets[name] = self._optimize_dtypes(df)
+                
+                # Apply data cleaning for Basic_table specifically
+                if name == 'basic' and not self.datasets[name].empty:
+                    print(f"\nAplicando limpieza de datos a {filename}...")
+                    original_shape = self.datasets[name].shape
+                    self.datasets[name] = clean_automaker_data(self.datasets[name])
+                    final_shape = self.datasets[name].shape
+                    
+                    # Validate cleaning results
+                    validation_report = validate_automaker_consistency(self.datasets[name])
+                    if validation_report['status'] == 'success':
+                        print(f"OK - Limpieza completada: {original_shape} -> {final_shape}")
+                        if validation_report['quality_score'] < 80:
+                            print(f"ADVERTENCIA - Score de calidad: {validation_report['quality_score']}/100")
+                    else:
+                        print(f"ADVERTENCIA - Error en validacion: {validation_report.get('message', 'Unknown error')}")
+                
                 print(f"[OK] {name.upper()}: {filename} - Shape: {self.datasets[name].shape}")
             except FileNotFoundError:
                 print(f"[ERROR] {filename} not found at {file_path}")
@@ -216,8 +256,8 @@ class CarDataAnalyzer:
         if price_data.empty or sales_data.empty:
             return pd.DataFrame()
         
-        # Merge price and sales data
-        merged = price_data.merge(sales_data, on='Genmodel_ID', how='inner')
+        # Merge price and sales data using composite key
+        merged = price_data.merge(sales_data, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='inner')
         
         # Calculate price elasticity (simplified version)
         merged['price_elasticity'] = np.where(
@@ -246,8 +286,8 @@ class CarDataAnalyzer:
         if price_data.empty or sales_data.empty:
             return outliers
         
-        # Merge data
-        merged = price_data.merge(sales_data, on='Genmodel_ID', how='inner')
+        # Merge data using composite key
+        merged = price_data.merge(sales_data, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='inner')
         
         numeric_columns = OUTLIER_CONFIG.get('outlier_columns', ['price_mean', 'total_sales', 'avg_sales'])
         
@@ -278,8 +318,8 @@ class CarDataAnalyzer:
         if price_data.empty or sales_data.empty:
             return pd.DataFrame()
         
-        # Merge and prepare features
-        merged = price_data.merge(sales_data, on='Genmodel_ID', how='inner')
+        # Merge and prepare features using composite key
+        merged = price_data.merge(sales_data, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='inner')
         
         # Select features for clustering
         features = CLUSTERING_CONFIG.get('clustering_features', ['price_mean', 'total_sales', 'avg_sales'])
@@ -323,8 +363,8 @@ class CarDataAnalyzer:
         if price_data.empty or sales_data.empty:
             return pd.DataFrame()
         
-        # Merge data
-        merged = price_data.merge(sales_data, on='Genmodel_ID', how='inner')
+        # Merge data using composite key
+        merged = price_data.merge(sales_data, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='inner')
         
         # Select numeric columns
         numeric_columns = CORRELATION_CONFIG.get('numeric_columns', [])
@@ -394,30 +434,31 @@ class CarDataAnalyzer:
     # ==================== EXISTING METHODS (ENHANCED) ====================
 
     def get_price_range_by_model(self) -> pd.DataFrame:
-        """Get enhanced price range analysis for each model."""
+        """Get enhanced price range analysis for each model using composite key."""
         if self.price.empty or 'Entry_price' not in self.price.columns:
             return pd.DataFrame()
 
-        price_stats = self.price.groupby('Genmodel_ID')['Entry_price'].agg([
+        # Group by composite key to ensure unique combinations
+        price_stats = self.price.groupby(['Automaker', 'Genmodel', 'Genmodel_ID'])['Entry_price'].agg([
             'min', 'max', 'mean', 'median', 'std', 'count'
         ]).reset_index()
         
         price_stats.columns = [
-            'Genmodel_ID', 'price_min', 'price_max', 'price_mean', 
+            'Automaker', 'Genmodel', 'Genmodel_ID', 'price_min', 'price_max', 'price_mean', 
             'price_median', 'price_std', 'price_entries'
         ]
         
         # Calculate price volatility
         price_stats['price_volatility'] = price_stats['price_std'] / price_stats['price_mean']
 
-        # Join with basic info
+        # Join with basic info using composite key
         if not self.basic.empty:
-            result = self.basic.merge(price_stats, on='Genmodel_ID', how='left')
+            result = self.basic.merge(price_stats, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
             return result
         return price_stats
 
     def get_sales_summary(self) -> pd.DataFrame:
-        """Get enhanced sales summary with trend analysis."""
+        """Get enhanced sales summary with trend analysis using composite key."""
         if self.sales.empty:
             return pd.DataFrame()
 
@@ -431,26 +472,26 @@ class CarDataAnalyzer:
             value_name='Sales_Volume'
         )
 
-        # Calculate enhanced summary statistics
-        sales_stats = sales_long.groupby('Genmodel_ID')['Sales_Volume'].agg([
+        # Calculate enhanced summary statistics using composite key
+        sales_stats = sales_long.groupby(['Automaker', 'Genmodel', 'Genmodel_ID'])['Sales_Volume'].agg([
             'sum', 'mean', 'max', 'min', 'std', 'count'
         ]).reset_index()
         
         sales_stats.columns = [
-            'Genmodel_ID', 'total_sales', 'avg_sales', 'max_sales', 
+            'Automaker', 'Genmodel', 'Genmodel_ID', 'total_sales', 'avg_sales', 'max_sales', 
             'min_sales', 'sales_std', 'years_with_data'
         ]
         
-        # Calculate sales trend (simplified)
-        sales_trend = sales_long.groupby('Genmodel_ID').apply(
+        # Calculate sales trend using composite key
+        sales_trend = sales_long.groupby(['Automaker', 'Genmodel', 'Genmodel_ID']).apply(
             lambda x: np.polyfit(x['Year'].astype(int), x['Sales_Volume'], 1)[0] if len(x) > 1 else 0
         ).reset_index(name='sales_trend')
 
-        sales_stats = sales_stats.merge(sales_trend, on='Genmodel_ID', how='left')
+        sales_stats = sales_stats.merge(sales_trend, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
 
-        # Join with basic info
+        # Join with basic info using composite key
         if not self.basic.empty:
-            result = self.basic.merge(sales_stats, on='Genmodel_ID', how='left')
+            result = self.basic.merge(sales_stats, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
             sales_fill_columns = [
                 'total_sales', 'avg_sales', 'max_sales', 'min_sales',
                 'sales_std', 'years_with_data', 'sales_trend'
@@ -471,9 +512,9 @@ class CarDataAnalyzer:
             sales_data = self.get_sales_summary()
             
             if not price_data.empty:
-                models = models.merge(price_data, on='Genmodel_ID', how='left')
+                models = models.merge(price_data, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
             if not sales_data.empty:
-                models = models.merge(sales_data, on='Genmodel_ID', how='left')
+                models = models.merge(sales_data, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
             
             return models
         return pd.DataFrame()
@@ -537,6 +578,121 @@ class CarDataAnalyzer:
             kpis['top_3_concentration'] = market_share.head(3)['market_share_percent'].sum()
         
         return kpis
+
+    def get_data_quality_report(self) -> Dict[str, Any]:
+        """Generate comprehensive data quality report including cleaning status."""
+        report = {
+            'cleaning_status': 'enabled',
+            'datasets_quality': {},
+            'overall_quality_score': 0,
+            'recommendations': []
+        }
+        
+        # Analyze each dataset
+        for name, df in self.datasets.items():
+            if df.empty:
+                report['datasets_quality'][name] = {
+                    'status': 'empty',
+                    'quality_score': 0,
+                    'issues': ['Dataset is empty']
+                }
+                continue
+            
+            # Calculate quality metrics
+            completeness = 1 - (df.isnull().sum().sum() / (len(df) * len(df.columns)))
+            uniqueness = 1 - (df.duplicated().sum() / len(df))
+            
+            # Special validation for basic dataset (after cleaning)
+            if name == 'basic' and 'Automaker' in df.columns:
+                validation = validate_automaker_consistency(df)
+                quality_score = validation.get('quality_score', 0)
+                issues = validation.get('issues', [])
+            else:
+                quality_score = (completeness * 0.6 + uniqueness * 0.4) * 100
+                issues = []
+                
+                if completeness < 0.95:
+                    issues.append(f"Low completeness: {completeness:.1%}")
+                if uniqueness < 0.98:
+                    issues.append(f"High duplication: {1-uniqueness:.1%}")
+            
+            report['datasets_quality'][name] = {
+                'status': 'good' if quality_score >= 80 else 'warning' if quality_score >= 60 else 'poor',
+                'quality_score': round(quality_score, 1),
+                'completeness': round(completeness, 3),
+                'uniqueness': round(uniqueness, 3),
+                'shape': df.shape,
+                'issues': issues
+            }
+        
+        # Calculate overall quality score
+        if report['datasets_quality']:
+            scores = [data['quality_score'] for data in report['datasets_quality'].values() if data['quality_score'] > 0]
+            report['overall_quality_score'] = round(sum(scores) / len(scores), 1) if scores else 0
+        
+        # Generate recommendations
+        if report['overall_quality_score'] < 80:
+            report['recommendations'].append("Consider reviewing data cleaning processes")
+        
+        basic_quality = report['datasets_quality'].get('basic', {})
+        if basic_quality.get('quality_score', 0) < 90:
+            report['recommendations'].append("Basic table data quality needs attention")
+        
+        return report
+
+    def get_price_segments(self) -> pd.DataFrame:
+        """
+        Segmenta los modelos de coches en categorías de precio.
+        """
+        price_data = self.get_price_range_by_model()
+        if price_data.empty or 'price_mean' not in price_data.columns:
+            return pd.DataFrame()
+
+        # Definir los umbrales de los cuantiles para los segmentos
+        quantiles = price_data['price_mean'].quantile([0.25, 0.75, 0.95]).to_dict()
+        q25 = quantiles[0.25]
+        q75 = quantiles[0.75]
+        q95 = quantiles[0.95]
+
+        # Crear la columna de segmento
+        conditions = [
+            price_data['price_mean'] <= q25,
+            (price_data['price_mean'] > q25) & (price_data['price_mean'] <= q75),
+            (price_data['price_mean'] > q75) & (price_data['price_mean'] <= q95),
+            price_data['price_mean'] > q95
+        ]
+        choices = ['Budget', 'Mid-Range', 'Premium', 'Luxury']
+        
+        price_data['Price_Segment'] = np.select(conditions, choices, default='Unknown')
+        
+        return price_data
+
+    def get_sales_by_segment(self) -> pd.DataFrame:
+        """
+        Calcula el volumen total de ventas para cada segmento de precio.
+        """
+        # Obtener los datos de ventas y de segmentos
+        sales_data = self.get_sales_summary()
+        segmented_data = self.get_price_segments()
+
+        if sales_data.empty or segmented_data.empty:
+            return pd.DataFrame()
+
+        # Unir los dos dataframes usando la clave compuesta
+        # Nos aseguramos de que solo nos quedamos con las columnas necesarias para evitar duplicados
+        merged_data = pd.merge(
+            sales_data[['Automaker', 'Genmodel', 'Genmodel_ID', 'total_sales']],
+            segmented_data[['Automaker', 'Genmodel', 'Genmodel_ID', 'Price_Segment']],
+            on=['Automaker', 'Genmodel', 'Genmodel_ID']
+        )
+        
+        # Agrupar por segmento y sumar las ventas
+        sales_by_segment = merged_data.groupby('Price_Segment')['total_sales'].sum().reset_index()
+        
+        # Eliminar el segmento 'Unknown' (modelos sin precio) ya que no aportan al análisis
+        sales_by_segment = sales_by_segment[sales_by_segment['Price_Segment'] != 'Unknown']
+
+        return sales_by_segment
 
 
 # Global instance for use throughout the application
