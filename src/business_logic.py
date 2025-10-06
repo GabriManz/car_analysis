@@ -65,7 +65,7 @@ class CarDataAnalyzer:
         if data_path is None:
             # Use the correct path for Streamlit Cloud (from repository root)
             self.data_path = 'data/'
-            print(f"✅ Using data path: {self.data_path}")
+            print(f"Using data path: {self.data_path}")
         else:
             self.data_path = data_path
         
