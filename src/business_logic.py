@@ -413,13 +413,6 @@ class CarDataAnalyzer:
         # Join with basic info
         if not self.basic.empty:
             result = self.basic.merge(price_stats, on='Genmodel_ID', how='left')
-            price_fill_columns = [
-                'price_min', 'price_max', 'price_mean', 'price_median',
-                'price_std', 'price_entries', 'price_volatility'
-            ]
-            for column_name in price_fill_columns:
-                if column_name in result.columns:
-                    result[column_name] = result[column_name].fillna(0)
             return result
         return price_stats
 
