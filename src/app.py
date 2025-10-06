@@ -15,20 +15,17 @@ warnings.filterwarnings('ignore')
 # Import core components
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Add the src directory to Python path for imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
 
 try:
-    from src.business_logic import analyzer
-except ImportError:
-    try:
-        from business_logic import analyzer
-    except ImportError:
-        # Fallback for Streamlit Cloud
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("business_logic", "src/business_logic.py")
-        business_logic = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(business_logic)
-        analyzer = business_logic.analyzer
+    from business_logic import analyzer
+except ImportError as e:
+    st.error(f"❌ Error importing business_logic: {e}")
+    st.error("Please ensure business_logic.py is in the src/ directory.")
+    st.stop()
 
 # Application configuration
 APP_CONFIG = {

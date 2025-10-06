@@ -63,15 +63,25 @@ class CarDataAnalyzer:
             data_path (str): Path to the directory containing CSV files
         """
         if data_path is None:
-            # Try multiple possible data paths
-            possible_paths = ['data/', '../data/', './data/', '/mount/src/car_analysis/data/']
+            # Try multiple possible data paths (including Streamlit Cloud paths)
+            possible_paths = [
+                'data/', 
+                '../data/', 
+                './data/', 
+                '/mount/src/car_analysis/data/',
+                'src/data/',
+                '../src/data/'
+            ]
             
             for path in possible_paths:
                 if os.path.exists(path):
                     self.data_path = path
+                    print(f"✅ Data path found: {path}")
                     break
             else:
                 self.data_path = 'data/'  # Default fallback
+                print(f"⚠️ Using default data path: {self.data_path}")
+                print(f"Available directories: {[d for d in os.listdir('.') if os.path.isdir(d)]}")
         else:
             self.data_path = data_path
         
