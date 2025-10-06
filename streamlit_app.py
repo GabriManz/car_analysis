@@ -24,14 +24,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Add the src directory to Python path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-src_dir = os.path.join(current_dir, 'src')
-sys.path.insert(0, src_dir)
-
 # Import business logic with error handling
 try:
-    from business_logic import analyzer
+    from src.business_logic import analyzer
     st.success("✅ Business logic loaded successfully")
 except ImportError as e:
     st.error(f"❌ Error importing business_logic: {e}")

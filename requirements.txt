@@ -1,13 +1,16 @@
-# Core Libraries
-pandas>=1.5.0
-numpy>=1.21.0
+# Core Data Processing
+pandas==2.2.0
+numpy==1.26.4
 
 # Visualization
-plotly>=5.0.0
+plotly==5.17.0
 
 # Dashboard Framework
-streamlit>=1.28.0
+streamlit==1.29.0
 
-# Additional dependencies
-scikit-learn>=1.1.0
-scipy>=1.9.0
+# Machine Learning & Statistics
+scikit-learn==1.4.0
+scipy==1.11.4
+
+# System Monitoring (for performance optimization)
+psutil==5.9.6
