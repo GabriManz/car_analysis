@@ -1,5 +1,7 @@
 # 🚗 Car Market Analysis Executive Dashboard
 
+Autor: Gabriel Manzano Reche
+
 Professional executive-grade dashboard for comprehensive car market analysis, offering insights into sales, pricing, and market trends.
 
 ## 🌟 Features
@@ -114,17 +116,10 @@ streamlit run src/app.py --server.headless true --server.port 8501
 3. Make your changes
 4. Submit a pull request
 
-## 📄 License
-
-This project is part of the Upgrade Hub Bootcamp curriculum.
-
 ## 👥 Authors
 
-- **Upgrade Hub** - Bootcamp project
-- **Version**: 2.0.0
+- Gabriel Manzano Reche
 
 ## 🔗 Links
 
-- **Streamlit Cloud**: https://share.streamlit.io
-- **Documentation**: See `FINAL_PROJECT_SUMMARY.md`
-- **Project Plan**: See `Action_Plan.md`
+- **App en Streamlit**: https://project-1-gabriel-manzano-reche.streamlit.app/
