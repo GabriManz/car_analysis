@@ -467,7 +467,7 @@ class CarDataAnalyzer:
             lambda x: np.polyfit(x['Year'].astype(int), x['Sales_Volume'], 1)[0] if len(x) > 1 else 0
         ).reset_index(name='sales_trend')
 
-        sales_stats = sales_stats.merge(sales_trend, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
+        sales_stats = sales_stats.merge(sales_trend, on='Genmodel_ID', how='left')
 
         # Join with basic info using Genmodel_ID (robust join)
         if not self.basic.empty:
