@@ -24,8 +24,8 @@ try:
     st.success("✅ PASO 1: `app_config` importado correctamente.")
 
     # --- PASO 2: Después, descomenta esta línea ---
-    # from src.utils.state_manager import load_analyzer
-    # st.success("✅ PASO 2: `state_manager` importado correctamente.")
+    from src.utils.state_manager import load_analyzer
+    st.success("✅ PASO 2: `state_manager` importado correctamente.")
 
     # --- PASO 3: Finalmente, descomenta esta línea ---
     # from src.router import navigate
