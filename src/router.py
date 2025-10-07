@@ -6,8 +6,8 @@ import streamlit as st
 # La ÚLTIMA línea que descomentes antes de que la app falle es la que contiene el error.
 
 # --- PASO 1: Descomenta esta línea primero ---
-# from src.components.dashboards.executive_dashboard import show_executive_dashboard
-# st.success("✅ ROUTER PASO 1: 'executive_dashboard' importado correctamente.")
+from src.components.dashboards.executive_dashboard import show_executive_dashboard
+st.success("✅ ROUTER PASO 1: 'executive_dashboard' importado correctamente.")
 
 # --- PASO 2: Descomenta esta línea después ---
 # from src.components.dashboards.market_dashboard import show_market_dashboard
