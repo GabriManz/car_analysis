@@ -447,3 +447,38 @@ class SidebarComponent:
 # Global instance for use throughout the application
 sidebar_component = SidebarComponent()
 
+
+def render_sidebar(analyzer):
+    """Renders the sidebar with filters and navigation, returns user selections."""
+    with st.sidebar:
+        st.markdown("## 🔧 Filters")
+
+        try:
+            automaker_list = analyzer.get_automaker_list()
+        except Exception as e:
+            st.error(f"Error getting automaker list: {e}")
+            automaker_list = []
+
+        if automaker_list:
+            selected_automakers = st.multiselect(
+                'Select Automakers (leave empty to show all)',
+                options=automaker_list,
+                default=[],
+                key='filter_automakers'
+            )
+            top_n = st.slider(
+                'Top N Results',
+                min_value=5, max_value=50, value=15, step=5,
+                key='filter_top_n'
+            )
+        else:
+            st.warning("No automaker data available")
+            selected_automakers = []
+            top_n = 15
+
+        page = st.sidebar.radio(
+            "Selecciona un Dashboard",
+            ["Resumen Ejecutivo", "Análisis de Mercado", "Rendimiento de Ventas"]
+        )
+
+    return selected_automakers, top_n, page
