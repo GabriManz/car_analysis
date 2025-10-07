@@ -2,9 +2,6 @@ import streamlit as st
 import warnings
 warnings.filterwarnings('ignore')
 
-# Minimal boot; import everything else with error surfacing
-st.set_page_config(page_title="App", layout="wide")
-
 try:
     from src.config.app_config import APP_CONFIG, CUSTOM_CSS
     st.set_page_config(
@@ -15,6 +12,8 @@ try:
     )
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 except Exception as e:
+    # Fallback minimal config to ensure UI renders error
+    st.set_page_config(page_title="App", layout="wide")
     st.error("❌ Error importando configuración (src.config.app_config)")
     st.exception(e)
     st.stop()
