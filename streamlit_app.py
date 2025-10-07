@@ -25,21 +25,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Performance optimization: Cache expensive operations
-@st.cache_data(ttl=3600)  # Cache for 1 hour
+# Load analyzer directly without caching to avoid Streamlit Cloud issues
 def load_analyzer():
-    """Load and initialize the analyzer with caching."""
+    """Load and initialize the analyzer."""
     try:
         from src.business_logic import analyzer
         return analyzer, None
     except ImportError as e:
         return None, str(e)
 
-@st.cache_data(ttl=1800)  # Cache for 30 minutes
-def get_cached_data(data_type: str):
-    """Cache frequently used data operations."""
+def get_data(data_type: str):
+    """Get data without caching for Streamlit Cloud compatibility."""
     try:
-        # Load analyzer inside cached function to avoid hash issues
         from src.business_logic import analyzer
         
         if data_type == 'sales_summary':
@@ -88,9 +85,9 @@ def validate_data_not_empty(df: pd.DataFrame, data_name: str) -> bool:
     return True
 
 def safe_get_data(data_type: str, selected_automakers: List[str] = None) -> pd.DataFrame:
-    """Safely get cached data with error handling."""
+    """Safely get data with error handling."""
     try:
-        df = get_cached_data(data_type)
+        df = get_data(data_type)
         if selected_automakers and not df.empty and 'Automaker' in df.columns:
             df = df[df['Automaker'].isin(selected_automakers)]
         return df
@@ -176,9 +173,9 @@ st.markdown(f"""
 # Sidebar filters
 st.sidebar.markdown("## 🎛️ Dashboard Controls")
 
-# Automaker selection with caching
+# Automaker selection
 with show_loading_spinner("automaker list"):
-    automakers = get_cached_data('automakers')
+    automakers = get_data('automakers')
 
 if len(automakers) > 0:
     selected_automakers = st.sidebar.multiselect(
