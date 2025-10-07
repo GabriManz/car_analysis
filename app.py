@@ -1,53 +1,48 @@
-"""
-🚗 Car Market Analysis Executive Dashboard - Working Version
-
-Professional dashboard with real data display and comprehensive features.
-"""
-
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
-from typing import Dict, List, Optional, Any
-import warnings
-warnings.filterwarnings('ignore')
+import sys
+import os
 
-# Import core modules from src using absolute imports
-from src.utils.state_manager import load_analyzer
-from src.components.ui.header import render_header
-from src.components.ui.sidebar import render_sidebar
-
-# Import dashboard renderers
-from src.router import navigate
-
-# Configuration and styles
-from src.config.app_config import APP_CONFIG, CUSTOM_CSS
+# --- INSTRUCCIONES ---
+# Descomenta las siguientes líneas de importación UNA POR UNA.
+# Después de descomentar CADA línea, sube el cambio a GitHub y comprueba
+# si la aplicación de Streamlit se carga. Si la aplicación falla y no se carga,
+# la ÚLTIMA línea que descomentaste es la que contiene el error.
 
 st.set_page_config(
-    page_title=APP_CONFIG['title'],
-    page_icon=APP_CONFIG['icon'],
-    layout="wide",
-    initial_sidebar_state="expanded"
+    page_title="App Debugger",
+    layout="wide"
 )
 
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+st.title("🐞 Debugger de la Aplicación")
+st.write("Revisando las importaciones del proyecto...")
 
-# Initialize analyzer via cached state manager
-analyzer = load_analyzer()
+try:
+    # --- PASO 1: Descomenta esta línea primero ---
+    from src.config.app_config import APP_CONFIG, CUSTOM_CSS
+    st.success("✅ PASO 1: `app_config` importado correctamente.")
 
-def main():
-    """Main application."""
-    
-    # Header
-    render_header()
+    # --- PASO 2: Después, descomenta esta línea ---
+    # from src.utils.state_manager import load_analyzer
+    # st.success("✅ PASO 2: `state_manager` importado correctamente.")
 
-    # Sidebar (filters and navigation)
-    _, _, page = render_sidebar(analyzer)
+    # --- PASO 3: Finalmente, descomenta esta línea ---
+    # from src.router import navigate
+    # st.success("✅ PASO 3: `router` importado correctamente.")
 
-    # Navigate to the selected page
-    navigate(page, analyzer)
+    st.balloons()
+    st.header("¡ÉXITO! Todas las importaciones principales funcionan.")
+    st.info("Ahora puedes restaurar tu archivo app.py original. El problema estaba en uno de los archivos que modificaste anteriormente y que ahora está corregido.")
 
-if __name__ == "__main__":
-    main()
+except ImportError as e:
+    st.error(f"❌ ¡ERROR DE IMPORTACIÓN ENCONTRADO! ❌")
+    st.error(f"La última importación que descomentaste ha fallado.")
+    st.error(f"El error es: **{e}**")
+    st.info("Revisa el archivo correspondiente a la importación fallida y corrige sus propias importaciones internas (probablemente una ruta relativa que necesita ser absoluta).")
+
+except Exception as e:
+    st.error(f"❌ ¡HA OCURRIDO UN ERROR INESPERADO! ❌")
+    st.error(f"El error es: **{e}**")
 
 
