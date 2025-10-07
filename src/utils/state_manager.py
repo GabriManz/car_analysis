@@ -4,9 +4,9 @@ import streamlit as st
 from ..business_logic import CarDataAnalyzer
 
 
-@st.cache_data(ttl=3600)
+@st.cache_resource
 def load_analyzer():
-    """Load and cache the CarDataAnalyzer instance for 1 hour."""
+    """Create and cache the CarDataAnalyzer instance as a resource."""
     analyzer = CarDataAnalyzer()
     return analyzer
 
