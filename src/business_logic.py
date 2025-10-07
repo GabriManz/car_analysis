@@ -76,12 +76,12 @@ class CarDataAnalyzer:
             try:
                 # Load with optimized dtypes and proper encoding
                 try:
-                    df = pd.read_csv(file_path, encoding='utf-8', nrows=2000)
+                    df = pd.read_csv(file_path, encoding='utf-8', nrows=6000)
                 except UnicodeDecodeError:
                     try:
-                        df = pd.read_csv(file_path, encoding='latin-1', nrows=2000)
+                        df = pd.read_csv(file_path, encoding='latin-1', nrows=6000)
                     except UnicodeDecodeError:
-                        df = pd.read_csv(file_path, encoding='cp1252', nrows=2000)
+                        df = pd.read_csv(file_path, encoding='cp1252', nrows=6000)
                 
                 # --- Filter out invalid Genmodel entries ---
                 if 'Genmodel' in df.columns:
