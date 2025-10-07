@@ -10,8 +10,8 @@ from src.components.dashboards.executive_dashboard import show_executive_dashboa
 st.success("✅ ROUTER PASO 1: 'executive_dashboard' importado correctamente.")
 
 # --- PASO 2: Descomenta esta línea después ---
-# from src.components.dashboards.market_dashboard import show_market_dashboard
-# st.success("✅ ROUTER PASO 2: 'market_dashboard' importado correctamente.")
+from src.components.dashboards.market_dashboard import show_market_dashboard
+st.success("✅ ROUTER PASO 2: 'market_dashboard' importado correctamente.")
 
 # --- PASO 3: Descomenta esta línea al final ---
 # from src.components.dashboards.sales_dashboard import show_sales_dashboard
