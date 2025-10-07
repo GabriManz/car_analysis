@@ -9,9 +9,9 @@ import streamlit as st
 from typing import Dict, List, Optional, Any, Callable
 import pandas as pd
 
-# Import configuration
+# Import configuration (absolute)
 try:
-    from ..config.app_config import DASHBOARD_MODULES, COLOR_PALETTE
+    from src.components.config.app_config import DASHBOARD_MODULES, COLOR_PALETTE
 except ImportError:
     # Fallback configuration
     DASHBOARD_MODULES = [

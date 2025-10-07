@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 
 # Import components
 try:
-    from ..config.app_config import COLOR_PALETTE
+    from src.components.config.app_config import COLOR_PALETTE
 except ImportError:
     COLOR_PALETTE = {
         'primary': '#1f77b4',

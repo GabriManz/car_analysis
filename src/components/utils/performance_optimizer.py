@@ -21,9 +21,9 @@ warnings.filterwarnings('ignore')
 
 # Import components
 try:
-    from ...business_logic import analyzer
-    from .data_manager import data_manager
-    from .notification_system import notification_system
+    from src.business_logic import CarDataAnalyzer as analyzer
+    from src.components.utils.data_manager import data_manager
+    from src.components.utils.notification_system import notification_system
     from .status_indicators import status_indicators
 except ImportError:
     analyzer = None

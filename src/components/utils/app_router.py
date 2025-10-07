@@ -12,9 +12,9 @@ import json
 
 # Import dashboard components
 try:
-    from ..dashboards.executive_dashboard import executive_dashboard
-    from ..dashboards.market_dashboard import market_dashboard
-    from ..dashboards.sales_dashboard import sales_dashboard
+    from src.components.dashboards.executive_dashboard import executive_dashboard
+    from src.components.dashboards.market_dashboard import market_dashboard
+    from src.components.dashboards.sales_dashboard import sales_dashboard
 except ImportError:
     executive_dashboard = None
     market_dashboard = None

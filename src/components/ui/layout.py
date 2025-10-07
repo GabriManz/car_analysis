@@ -9,9 +9,9 @@ import streamlit as st
 from typing import Dict, List, Optional, Any
 import pandas as pd
 
-# Import configuration
+# Import configuration (absolute)
 try:
-    from ..config.app_config import APP_CONFIG, CUSTOM_CSS, COLOR_PALETTE
+    from src.components.config.app_config import APP_CONFIG, CUSTOM_CSS, COLOR_PALETTE
 except ImportError:
     # Fallback configuration
     APP_CONFIG = {

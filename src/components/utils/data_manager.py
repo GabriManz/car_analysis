@@ -18,8 +18,8 @@ warnings.filterwarnings('ignore')
 
 # Import components
 try:
-    from ...business_logic import analyzer
-    from ...data_layer import data_processor
+    from src.business_logic import CarDataAnalyzer as analyzer
+    from src.data_layer import data_processor
 except ImportError:
     # Fallback imports
     analyzer = None

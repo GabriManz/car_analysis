@@ -14,13 +14,13 @@ from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
 
-# Import configuration
+# Import configuration (absolute)
 try:
-    from .components.config.data_config import (
+    from src.components.config.data_config import (
         DATA_FILES, COLUMN_MAPPING, VALIDATION_RULES, 
         SALES_YEARS, DATA_QUALITY_THRESHOLDS, MEMORY_CONFIG, EXPORT_CONFIG
     )
-    from .components.config.app_config import DATA_CONFIG
+    from src.components.config.app_config import DATA_CONFIG
 except ImportError:
     # Fallback configuration
     DATA_FILES = {}

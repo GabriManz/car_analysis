@@ -16,8 +16,8 @@ warnings.filterwarnings('ignore')
 
 # Import configuration and presentation layer
 try:
-    from ..config.app_config import CHART_CONFIG, COLOR_PALETTE, COOLORS_PALETTE, MANUFACTURER_COLORS
-    from ...presentation_layer import presentation_layer
+    from src.components.config.app_config import CHART_CONFIG, COLOR_PALETTE, COOLORS_PALETTE, MANUFACTURER_COLORS
+    from src.presentation_layer import presentation_layer
 except ImportError:
     # Fallback configuration
     CHART_CONFIG = {

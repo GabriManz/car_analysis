@@ -14,9 +14,9 @@ from typing import Dict, List, Optional, Any, Tuple, Union
 import warnings
 warnings.filterwarnings('ignore')
 
-# Import configuration
+# Import configuration (absolute)
 try:
-    from .components.config.app_config import (
+    from src.components.config.app_config import (
         CHART_CONFIG, COLOR_PALETTE, COOLORS_PALETTE, RISK_COLORS,
         MANUFACTURER_COLORS, CUSTOM_CSS
     )

@@ -17,10 +17,10 @@ import json
 
 # Import components
 try:
-    from ...business_logic import analyzer
-    from ...data_layer import data_processor
-    from .data_manager import data_manager
-    from .notification_system import notification_system
+    from src.business_logic import CarDataAnalyzer as analyzer
+    from src.data_layer import data_processor
+    from src.components.utils.data_manager import data_manager
+    from src.components.utils.notification_system import notification_system
 except ImportError:
     # Fallback imports
     analyzer = None
@@ -30,7 +30,7 @@ except ImportError:
 
 # Import configuration
 try:
-    from ..config.app_config import COLOR_PALETTE, RISK_COLORS
+    from src.components.config.app_config import COLOR_PALETTE, RISK_COLORS
 except ImportError:
     # Fallback configuration
     COLOR_PALETTE = {

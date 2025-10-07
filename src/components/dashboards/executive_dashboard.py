@@ -15,14 +15,13 @@ warnings.filterwarnings('ignore')
 
 # Import components
 try:
-    from ..ui.layout import layout_component
-    from ..ui.sidebar import sidebar_component
-    from ..analytics.kpi_calculator import kpi_calculator
-    from ..analytics.data_quality import data_quality
-    from ..visualizations.chart_factory import chart_factory
-    from ...business_logic import analyzer
+    from src.components.ui.layout import layout_component
+    from src.components.ui.sidebar import sidebar_component
+    from src.components.analytics.kpi_calculator import kpi_calculator
+    from src.components.analytics.data_quality import data_quality
+    from src.components.visualizations.chart_factory import chart_factory
+    from src.business_logic import CarDataAnalyzer as analyzer  # placeholder for type/context
 except ImportError:
-    # Fallback imports
     layout_component = None
     sidebar_component = None
     kpi_calculator = None

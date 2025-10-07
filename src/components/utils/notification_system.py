@@ -14,7 +14,7 @@ import time
 
 # Import configuration
 try:
-    from ..config.app_config import COLOR_PALETTE
+    from src.components.config.app_config import COLOR_PALETTE
 except ImportError:
     # Fallback configuration
     COLOR_PALETTE = {
