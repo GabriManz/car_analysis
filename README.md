@@ -122,4 +122,4 @@ streamlit run src/app.py --server.headless true --server.port 8501
 
 ## 🔗 Links
 
-- **App en Streamlit**: https://project-1-gabriel-manzano-reche.streamlit.app/
+- **App en Streamlit**: https://caranalysis-gb9dzmx63ep3oscd8xkyvx.streamlit.app/
