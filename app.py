@@ -42,11 +42,7 @@ def main():
     render_header()
 
     # Sidebar (filters and navigation)
-    selected_automakers, top_n, page = render_sidebar(analyzer)
-
-    # Persist filters in session_state for dashboard functions
-    st.session_state['filter_automakers'] = selected_automakers
-    st.session_state['filter_top_n'] = top_n
+    _, _, page = render_sidebar(analyzer)
 
     # Navigate to the selected page
     navigate(page, analyzer)
