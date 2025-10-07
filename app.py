@@ -20,9 +20,11 @@ except Exception as e:
 
 try:
     from src.utils.state_manager import load_analyzer
+    # Initialize analyzer via cached state manager
     analyzer = load_analyzer()
 except Exception as e:
-    st.error("❌ Error inicializando el analizador (src.utils.state_manager)")
+    st.error("❌ Se produjo un error crítico durante la carga de datos.")
+    st.error("Este error suele ocurrir si hay un problema al leer o procesar los archivos CSV en la clase `CarDataAnalyzer`.")
     st.exception(e)
     st.stop()
 
