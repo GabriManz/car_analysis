@@ -76,12 +76,12 @@ class CarDataAnalyzer:
             try:
                 # Load with optimized dtypes and proper encoding
                 try:
-                    df = pd.read_csv(file_path, encoding='utf-8', nrows=100)
+                    df = pd.read_csv(file_path, encoding='utf-8')
                 except UnicodeDecodeError:
                     try:
-                        df = pd.read_csv(file_path, encoding='latin-1', nrows=100)
+                        df = pd.read_csv(file_path, encoding='latin-1')
                     except UnicodeDecodeError:
-                        df = pd.read_csv(file_path, encoding='cp1252', nrows=100)
+                        df = pd.read_csv(file_path, encoding='cp1252')
                 
                 self.datasets[name] = self._optimize_dtypes(df)
                 
@@ -418,22 +418,22 @@ class CarDataAnalyzer:
         if self.price.empty or 'Entry_price' not in self.price.columns:
             return pd.DataFrame()
 
-        # Group by composite key to ensure unique combinations
-        price_stats = self.price.groupby(['Automaker', 'Genmodel', 'Genmodel_ID'])['Entry_price'].agg([
+        # Group by unique model ID only (robust join key)
+        price_stats = self.price.groupby('Genmodel_ID')['Entry_price'].agg([
             'min', 'max', 'mean', 'median', 'std', 'count'
         ]).reset_index()
         
         price_stats.columns = [
-            'Automaker', 'Genmodel', 'Genmodel_ID', 'price_min', 'price_max', 'price_mean', 
+            'Genmodel_ID', 'price_min', 'price_max', 'price_mean', 
             'price_median', 'price_std', 'price_entries'
         ]
         
         # Calculate price volatility
         price_stats['price_volatility'] = price_stats['price_std'] / price_stats['price_mean']
 
-        # Join with basic info using composite key
+        # Join with basic info using Genmodel_ID (robust join)
         if not self.basic.empty:
-            result = self.basic.merge(price_stats, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='inner')
+            result = self.basic.merge(price_stats, on='Genmodel_ID', how='inner')
             return result
         return price_stats
 
@@ -452,26 +452,26 @@ class CarDataAnalyzer:
             value_name='Sales_Volume'
         )
 
-        # Calculate enhanced summary statistics using composite key
-        sales_stats = sales_long.groupby(['Automaker', 'Genmodel', 'Genmodel_ID'])['Sales_Volume'].agg([
+        # Calculate enhanced summary statistics using Genmodel_ID only
+        sales_stats = sales_long.groupby('Genmodel_ID')['Sales_Volume'].agg([
             'sum', 'mean', 'max', 'min', 'std', 'count'
         ]).reset_index()
         
         sales_stats.columns = [
-            'Automaker', 'Genmodel', 'Genmodel_ID', 'total_sales', 'avg_sales', 'max_sales', 
+            'Genmodel_ID', 'total_sales', 'avg_sales', 'max_sales', 
             'min_sales', 'sales_std', 'years_with_data'
         ]
         
-        # Calculate sales trend using composite key
-        sales_trend = sales_long.groupby(['Automaker', 'Genmodel', 'Genmodel_ID']).apply(
+        # Calculate sales trend using Genmodel_ID only
+        sales_trend = sales_long.groupby('Genmodel_ID').apply(
             lambda x: np.polyfit(x['Year'].astype(int), x['Sales_Volume'], 1)[0] if len(x) > 1 else 0
         ).reset_index(name='sales_trend')
 
         sales_stats = sales_stats.merge(sales_trend, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
 
-        # Join with basic info using composite key
+        # Join with basic info using Genmodel_ID (robust join)
         if not self.basic.empty:
-            result = self.basic.merge(sales_stats, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='inner')
+            result = self.basic.merge(sales_stats, on='Genmodel_ID', how='inner')
             sales_fill_columns = [
                 'total_sales', 'avg_sales', 'max_sales', 'min_sales',
                 'sales_std', 'years_with_data', 'sales_trend'
