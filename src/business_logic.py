@@ -433,7 +433,7 @@ class CarDataAnalyzer:
 
         # Join with basic info using composite key
         if not self.basic.empty:
-            result = self.basic.merge(price_stats, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
+            result = self.basic.merge(price_stats, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='inner')
             return result
         return price_stats
 
@@ -471,7 +471,7 @@ class CarDataAnalyzer:
 
         # Join with basic info using composite key
         if not self.basic.empty:
-            result = self.basic.merge(sales_stats, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='left')
+            result = self.basic.merge(sales_stats, on=['Automaker', 'Genmodel', 'Genmodel_ID'], how='inner')
             sales_fill_columns = [
                 'total_sales', 'avg_sales', 'max_sales', 'min_sales',
                 'sales_std', 'years_with_data', 'sales_trend'
