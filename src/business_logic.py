@@ -685,7 +685,3 @@ class CarDataAnalyzer:
         sales_by_segment = sales_by_segment[sales_by_segment['Price_Segment'] != 'Unknown']
 
         return sales_by_segment
-
-
-# Global instance for use throughout the application
-analyzer = CarDataAnalyzer()
