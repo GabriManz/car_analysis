@@ -2,25 +2,38 @@ import streamlit as st
 import warnings
 warnings.filterwarnings('ignore')
 
-# Configuration and styles
-from src.config.app_config import APP_CONFIG, CUSTOM_CSS
+# Minimal boot; import everything else with error surfacing
+st.set_page_config(page_title="App", layout="wide")
 
-# Core modules
-from src.utils.state_manager import load_analyzer
-from src.components.ui.header import render_header
-from src.components.ui.sidebar import render_sidebar
+try:
+    from src.config.app_config import APP_CONFIG, CUSTOM_CSS
+    st.set_page_config(
+        page_title=APP_CONFIG['title'],
+        page_icon=APP_CONFIG.get('icon', '🚗'),
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+except Exception as e:
+    st.error("❌ Error importando configuración (src.config.app_config)")
+    st.exception(e)
+    st.stop()
 
-st.set_page_config(
-    page_title=APP_CONFIG['title'],
-    page_icon=APP_CONFIG.get('icon', '🚗'),
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+try:
+    from src.utils.state_manager import load_analyzer
+    analyzer = load_analyzer()
+except Exception as e:
+    st.error("❌ Error inicializando el analizador (src.utils.state_manager)")
+    st.exception(e)
+    st.stop()
 
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-
-# Initialize analyzer (cached)
-analyzer = load_analyzer()
+try:
+    from src.components.ui.header import render_header
+    from src.components.ui.sidebar import render_sidebar
+except Exception as e:
+    st.error("❌ Error importando componentes de UI (header/sidebar)")
+    st.exception(e)
+    st.stop()
 
 def main():
     """Main application."""
