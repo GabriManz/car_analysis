@@ -16,35 +16,21 @@ from sklearn.decomposition import PCA
 import warnings
 warnings.filterwarnings('ignore')
 
-# Import data cleaning functions
-try:
-    from .data_cleaner import clean_automaker_data, validate_automaker_consistency, print_cleaning_report
-except ImportError:
-    try:
-        # Try direct import if relative import fails
-        from data_cleaner import clean_automaker_data, validate_automaker_consistency, print_cleaning_report
-    except ImportError:
-        # Fallback if import fails
-        def clean_automaker_data(df):
-            return df
-        def validate_automaker_consistency(df):
-            return {'status': 'error', 'message': 'Data cleaning module not available'}
-        def print_cleaning_report(report):
-            pass
+# Import data cleaning functions (absolute imports)
+from src.data_cleaner import (
+    clean_automaker_data,
+    validate_automaker_consistency,
+    print_cleaning_report,
+)
 
-# Import configuration
-try:
-    from .components.config.app_config import (
-        CORRELATION_CONFIG, OUTLIER_CONFIG, CLUSTERING_CONFIG, KPI_THRESHOLDS
-    )
-    from .components.config.data_config import DATA_QUALITY_THRESHOLDS
-except ImportError:
-    # Fallback configuration if imports fail
-    CORRELATION_CONFIG = {'numeric_columns': [], 'correlation_threshold': 0.3}
-    OUTLIER_CONFIG = {'methods': ['iqr'], 'zscore_threshold': 3}
-    CLUSTERING_CONFIG = {'n_clusters': 5, 'random_state': 42}
-    KPI_THRESHOLDS = {}
-    DATA_QUALITY_THRESHOLDS = {}
+# Import configuration (absolute imports)
+from src.components.config.app_config import (
+    CORRELATION_CONFIG,
+    OUTLIER_CONFIG,
+    CLUSTERING_CONFIG,
+    KPI_THRESHOLDS,
+)
+from src.components.config.data_config import DATA_QUALITY_THRESHOLDS
 
 
 class CarDataAnalyzer:
@@ -85,8 +71,7 @@ class CarDataAnalyzer:
         for name, filename in files_to_load.items():
             file_path = os.path.join(self.data_path, filename)
             
-            # --- DEBUG: log the exact path being loaded ---
-            print(f"--- DEBUG: Intentando cargar el archivo desde: {file_path} ---")
+            # Path being loaded (debug line removed after verification)
 
             try:
                 # Load with optimized dtypes and proper encoding
