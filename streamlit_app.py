@@ -172,11 +172,11 @@ st.sidebar.markdown("## 🎛️ Dashboard Controls")
 
 # Get automakers
 automakers = sorted(basic['Automaker'].unique()) if not basic.empty else []
-        selected_automakers = st.sidebar.multiselect(
-            "Select Automakers",
-            options=automakers,
-            default=automakers[:5] if len(automakers) >= 5 else automakers
-        )
+selected_automakers = st.sidebar.multiselect(
+    "Select Automakers",
+    options=automakers,
+    default=automakers[:5] if len(automakers) >= 5 else automakers
+)
 
 top_n = st.sidebar.slider("Number of Top Models", min_value=5, max_value=20, value=10)
 
@@ -188,21 +188,21 @@ with tab1:
     
     # Enhanced key metrics
     col1, col2, col3, col4, col5 = st.columns(5)
-        
-        with col1:
+    
+    with col1:
         st.metric("Total Models", f"{market_insights.get('total_models', 0):,}")
-        
-        with col2:
+    
+    with col2:
         st.metric("Automakers", market_insights.get('total_automakers', 0))
     
     with col3:
         total_sales = market_insights.get('total_sales', 0)
-            st.metric("Total Sales", f"{int(total_sales):,}")
-        
+        st.metric("Total Sales", f"{int(total_sales):,}")
+    
     with col4:
         avg_price = market_insights.get('avg_market_price', 0)
-            st.metric("Avg Price", f"€{avg_price:,.0f}")
-        
+        st.metric("Avg Price", f"€{avg_price:,.0f}")
+    
     with col5:
         growing_models = market_insights.get('growing_models', 0)
         st.metric("Growing Models", growing_models)
@@ -215,9 +215,9 @@ with tab1:
     with col1:
         st.markdown("**🏆 Top Market Leaders:**")
         market_leaders = market_insights.get('market_leaders', {})
-        for i, (automaker, sales) in enumerate(market_leaders.items(), 1):
-            percentage = (sales / total_sales) * 100 if total_sales > 0 else 0
-            st.write(f"{i}. **{automaker}**: {int(sales):,} units ({percentage:.1f}%)")
+        for i, (automaker, sales_count) in enumerate(market_leaders.items(), 1):
+            percentage = (sales_count / total_sales) * 100 if total_sales > 0 else 0
+            st.write(f"{i}. **{automaker}**: {int(sales_count):,} units ({percentage:.1f}%)")
     
     with col2:
         st.markdown("**💰 Price Segments:**")
@@ -227,11 +227,11 @@ with tab1:
             st.write(f"• **{segment}**: {count} models ({percentage:.1f}%)")
     
     # Enhanced charts
-        col1, col2 = st.columns(2)
-        
-        with col1:
+    col1, col2 = st.columns(2)
+    
+    with col1:
         st.subheader("🏆 Top Models by Sales")
-            if not sales_summary.empty:
+        if not sales_summary.empty:
             filtered_sales = sales_summary
             if selected_automakers:
                 filtered_sales = sales_summary[sales_summary['Automaker'].isin(selected_automakers)]
@@ -249,9 +249,9 @@ with tab1:
                     title=''
                 )
                 fig.update_layout(showlegend=False, height=400)
-                    st.plotly_chart(fig, use_container_width=True)
-        
-        with col2:
+                st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
         st.subheader("💰 Price Segment Distribution")
         if not price_analysis.empty:
             segment_counts = price_analysis['price_segment'].value_counts()
@@ -263,7 +263,7 @@ with tab1:
                     title='',
                     color_discrete_sequence=colors
                 )
-                    st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
     
     # Additional insights
     st.markdown("### 📊 Advanced Analytics")
@@ -336,9 +336,9 @@ with tab2:
                 
                 # Show top 3 details
                 st.markdown("**Top 3 Market Leaders:**")
-                for i, (automaker, sales) in enumerate(market_share.head(3).items(), 1):
+                for i, (automaker, sales_count) in enumerate(market_share.head(3).items(), 1):
                     pct = market_share_pct[automaker]
-                    st.write(f"{i}. **{automaker}**: {int(sales):,} units ({pct}%)")
+                    st.write(f"{i}. **{automaker}**: {int(sales_count):,} units ({pct}%)")
     
     with col2:
         st.subheader("💰 Price Analysis by Automaker")
@@ -349,7 +349,7 @@ with tab2:
                 'price_max': 'max'
             }).sort_values('price_mean', ascending=False).head(10)
             
-        if selected_automakers:
+            if selected_automakers:
                 price_by_maker = price_by_maker[price_by_maker.index.isin(selected_automakers)]
             
             if not price_by_maker.empty:
@@ -382,10 +382,10 @@ with tab2:
     
     # Market segmentation analysis
     st.markdown("### 🎯 Market Segmentation Analysis")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
         st.subheader("📊 Segment Performance")
         if not sales_summary.empty and not price_analysis.empty:
             # Merge sales and price data
@@ -411,8 +411,8 @@ with tab2:
                         color_continuous_scale='viridis'
                     )
                     st.plotly_chart(fig, use_container_width=True)
-        
-        with col2:
+    
+    with col2:
         st.subheader("🔍 Competitive Landscape")
         if not sales_summary.empty:
             # Calculate market concentration metrics
@@ -508,7 +508,7 @@ with tab3:
         st.subheader("🏆 Top Performing Models")
         if not sales_summary.empty:
             filtered_sales = sales_summary
-        if selected_automakers:
+            if selected_automakers:
                 filtered_sales = sales_summary[sales_summary['Automaker'].isin(selected_automakers)]
             
             top_models = filtered_sales.nlargest(top_n, 'total_sales')[['Automaker', 'Genmodel', 'total_sales', 'avg_sales', 'years_active']]
@@ -591,7 +591,7 @@ with tab3:
                     color='trend',
                     color_continuous_scale='RdYlGn'
                 )
-                    st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("No significant growth trends detected")
         
@@ -609,7 +609,7 @@ with tab3:
                     color='trend',
                     color_continuous_scale='Reds'
                 )
-                    st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("No significant declining trends detected")
 
@@ -617,7 +617,7 @@ with tab3:
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #666; margin-top: 2rem;">
-    🚗 Car Market Analysis Dashboard v2.3.0<br>
+    🚗 Car Market Analysis Dashboard v2.3.1<br>
     Advanced Analytics & Intelligence Platform
 </div>
 """, unsafe_allow_html=True)
