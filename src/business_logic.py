@@ -85,6 +85,9 @@ class CarDataAnalyzer:
         for name, filename in files_to_load.items():
             file_path = os.path.join(self.data_path, filename)
             
+            # --- DEBUG: log the exact path being loaded ---
+            print(f"--- DEBUG: Intentando cargar el archivo desde: {file_path} ---")
+
             try:
                 # Load with optimized dtypes and proper encoding
                 try:
