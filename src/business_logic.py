@@ -83,6 +83,14 @@ class CarDataAnalyzer:
                     except UnicodeDecodeError:
                         df = pd.read_csv(file_path, encoding='cp1252')
                 
+                # --- Filter out invalid Genmodel entries ---
+                if 'Genmodel' in df.columns:
+                    original_rows = len(df)
+                    df = df[df['Genmodel'] != 'undefined']
+                    rows_removed = original_rows - len(df)
+                    if rows_removed > 0:
+                        print(f"[CLEANING] Eliminadas {rows_removed} filas con 'Genmodel' como 'undefined' en {filename}")
+
                 self.datasets[name] = self._optimize_dtypes(df)
                 
                 # Apply data cleaning for Basic_table specifically
