@@ -14,8 +14,8 @@ from src.components.dashboards.market_dashboard import show_market_dashboard
 st.success("✅ ROUTER PASO 2: 'market_dashboard' importado correctamente.")
 
 # --- PASO 3: Descomenta esta línea al final ---
-# from src.components.dashboards.sales_dashboard import show_sales_dashboard
-# st.success("✅ ROUTER PASO 3: 'sales_dashboard' importado correctamente.")
+from src.components.dashboards.sales_dashboard import show_sales_dashboard
+st.success("✅ ROUTER PASO 3: 'sales_dashboard' importado correctamente.")
 
 
 def navigate(page, analyzer):
