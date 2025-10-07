@@ -36,9 +36,12 @@ def load_analyzer():
         return None, str(e)
 
 @st.cache_data(ttl=1800)  # Cache for 30 minutes
-def get_cached_data(analyzer, data_type: str):
+def get_cached_data(data_type: str):
     """Cache frequently used data operations."""
     try:
+        # Load analyzer inside cached function to avoid hash issues
+        from src.business_logic import analyzer
+        
         if data_type == 'sales_summary':
             return analyzer.get_sales_summary()
         elif data_type == 'price_summary':
@@ -87,7 +90,7 @@ def validate_data_not_empty(df: pd.DataFrame, data_name: str) -> bool:
 def safe_get_data(data_type: str, selected_automakers: List[str] = None) -> pd.DataFrame:
     """Safely get cached data with error handling."""
     try:
-        df = get_cached_data(analyzer, data_type)
+        df = get_cached_data(data_type)
         if selected_automakers and not df.empty and 'Automaker' in df.columns:
             df = df[df['Automaker'].isin(selected_automakers)]
         return df
@@ -175,7 +178,7 @@ st.sidebar.markdown("## 🎛️ Dashboard Controls")
 
 # Automaker selection with caching
 with show_loading_spinner("automaker list"):
-    automakers = get_cached_data(analyzer, 'automakers')
+    automakers = get_cached_data('automakers')
 
 if len(automakers) > 0:
     selected_automakers = st.sidebar.multiselect(
