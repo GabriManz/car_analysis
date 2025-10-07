@@ -8,6 +8,7 @@ competitive intelligence, and market segmentation analysis.
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
 from typing import Dict, List, Optional, Any
 import warnings
 warnings.filterwarnings('ignore')
@@ -599,4 +600,245 @@ class MarketDashboard:
 
 # Global instance for use throughout the application
 market_dashboard = MarketDashboard()
+
+
+def show_market_dashboard(analyzer):
+    """Render the Market Analysis dashboard using the provided analyzer.
+
+    Reads filters from st.session_state: 'filter_automakers', 'filter_top_n'.
+    """
+    st.markdown("## 🌍 Market Analysis")
+    
+    try:
+        selected_automakers = st.session_state.get('filter_automakers', [])
+        top_n = st.session_state.get('filter_top_n', 15)
+
+        # Get data
+        sales_summary = analyzer.get_sales_summary()
+        price_summary = analyzer.get_price_range_by_model()
+        
+        # Apply filters
+        if selected_automakers:
+            sales_summary = sales_summary[sales_summary['Automaker'].isin(selected_automakers)]
+            price_summary = price_summary[price_summary['Automaker'].isin(selected_automakers)]
+        
+        # Market share analysis
+        st.markdown('<div class="section-header">🌍 Market Share & Distribution Analysis</div>', unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("🥧 Market Share by Automaker")
+            if not sales_summary.empty:
+                sales_clean = sales_summary.dropna(subset=['total_sales'])
+                if not sales_clean.empty:
+                    market_share = sales_clean.groupby('Automaker')['total_sales'].sum().sort_values(ascending=False)
+                    # Show top 10 automakers
+                    market_share_top10 = market_share.head(10)
+                    fig_pie = px.pie(
+                        values=market_share_top10.values,
+                        names=market_share_top10.index,
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_pie.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450
+                    )
+                    st.plotly_chart(fig_pie, use_container_width=True)
+                else:
+                    st.info("No valid market data available")
+            else:
+                st.info("No market data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📊 Price Distribution Analysis")
+            if not price_summary.empty:
+                price_clean = price_summary.dropna(subset=['price_mean'])
+                if not price_clean.empty:
+                    fig_hist = px.histogram(
+                        price_clean,
+                        x='price_mean',
+                        nbins=25,
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=['#667eea']
+                    )
+                    fig_hist.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Price (€)",
+                        yaxis_title="Number of Models"
+                    )
+                    st.plotly_chart(fig_hist, use_container_width=True)
+                else:
+                    st.info("No valid price data available")
+            else:
+                st.info("No price data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Additional Market Analytics
+        st.markdown('<div class="section-header">📈 Market Trends & Analytics</div>', unsafe_allow_html=True)
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📊 Market Share vs Average Price")
+            if not sales_summary.empty and not price_summary.empty:
+                # Calculate market share by automaker
+                market_share = sales_summary.groupby('Automaker')['total_sales'].sum()
+                total_sales_all = market_share.sum()
+                market_share_pct = (market_share / total_sales_all * 100).head(10)
+                
+                # Get average prices by automaker
+                avg_prices = price_summary.groupby('Automaker')['price_mean'].mean()
+                
+                # Merge data
+                market_analysis = pd.DataFrame({
+                    'Market Share (%)': market_share_pct,
+                    'Avg Price (€)': avg_prices
+                }).dropna()
+                
+                if not market_analysis.empty:
+                    fig_bubble = px.scatter(
+                        market_analysis,
+                        x='Avg Price (€)',
+                        y='Market Share (%)',
+                        size='Market Share (%)',
+                        color='Market Share (%)',
+                        title='',
+                        template="plotly_dark",
+                        color_continuous_scale='Viridis',
+                        hover_data={'Market Share (%)': ':.1f', 'Avg Price (€)': ':,.0f'}
+                    )
+                    fig_bubble.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Average Price (€)",
+                        yaxis_title="Market Share (%)"
+                    )
+                    st.plotly_chart(fig_bubble, use_container_width=True)
+                else:
+                    st.info("No market analysis data available")
+            else:
+                st.info("No market data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📉 Price Range Distribution")
+            if not price_summary.empty:
+                price_clean = price_summary.dropna(subset=['price_mean'])
+                if not price_clean.empty:
+                    # Create price bins for histogram
+                    fig_hist = px.histogram(
+                        price_clean,
+                        x='price_mean',
+                        nbins=30,
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=['#667eea'],
+                        marginal="box"
+                    )
+                    fig_hist.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Price (€)",
+                        yaxis_title="Number of Models"
+                    )
+                    st.plotly_chart(fig_hist, use_container_width=True)
+                else:
+                    st.info("No price data available")
+            else:
+                st.info("No price data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Market Positioning by Price Segment
+        st.markdown("---")  # Separador visual
+        st.subheader("Market Positioning by Price Segment")
+
+        try:
+            # Obtener datos segmentados desde la lógica de negocio
+            segmented_data = analyzer.get_price_segments()
+
+            if not segmented_data.empty and 'Price_Segment' in segmented_data.columns:
+                # Contar modelos por fabricante y segmento
+                segment_counts = segmented_data.groupby(['Automaker', 'Price_Segment']).size().reset_index(name='Model_Count')
+                
+                # Ordenar fabricantes por número total de modelos para una mejor visualización
+                top_automakers = segmented_data['Automaker'].value_counts().nlargest(20).index
+                segment_counts_top = segment_counts[segment_counts['Automaker'].isin(top_automakers)]
+
+                # Crear el gráfico de barras apiladas
+                fig_segment = px.bar(
+                    segment_counts_top,
+                    x='Automaker',
+                    y='Model_Count',
+                    color='Price_Segment',
+                    title='Number of Models per Automaker by Price Segment (Top 20)',
+                    labels={'Model_Count': 'Number of Models', 'Automaker': 'Automaker'},
+                    category_orders={
+                        "Price_Segment": ["Budget", "Mid-Range", "Premium", "Luxury"]
+                    },
+                    color_discrete_map={
+                        'Budget': '#2a9d8f',
+                        'Mid-Range': '#e9c46a',
+                        'Premium': '#f4a261',
+                        'Luxury': '#e76f51'
+                    },
+                    template="plotly_dark"
+                )
+                
+                fig_segment.update_layout(
+                    xaxis_tickangle=-45, 
+                    height=500,
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='white'),
+                    xaxis_title="Automaker",
+                    yaxis_title="Number of Models",
+                    legend_title="Price Segment"
+                )
+                
+                st.plotly_chart(fig_segment, use_container_width=True)
+                
+                # Añadir información adicional sobre la segmentación
+                st.markdown("""
+                **📊 Market Segmentation Insights:**
+                - **Budget**: Bottom 25% of price range (most affordable models)
+                - **Mid-Range**: 25th-75th percentile (mainstream market)
+                - **Premium**: 75th-95th percentile (higher-end positioning)
+                - **Luxury**: Top 5% of price range (ultra-luxury models)
+                """)
+                
+                # Mostrar estadísticas de segmentación
+                if not segment_counts_top.empty:
+                    st.markdown("**🎯 Segment Distribution:**")
+                    segment_totals = segment_counts_top.groupby('Price_Segment')['Model_Count'].sum().sort_values(ascending=False)
+                    for segment, count in segment_totals.items():
+                        percentage = (count / segment_totals.sum()) * 100
+                        st.markdown(f"- **{segment}**: {count} models ({percentage:.1f}%)")
+            else:
+                st.info("Price segmentation data is not available.")
+                
+        except Exception as e:
+            st.error(f"Error rendering market segmentation: {str(e)}")
+            
+    except Exception as e:
+        st.error(f"Error rendering market analysis: {str(e)}")
+        import traceback
+        st.code(traceback.format_exc())
 

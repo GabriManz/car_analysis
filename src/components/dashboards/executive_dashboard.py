@@ -8,6 +8,7 @@ for automotive market analysis with C-level decision support.
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
 from typing import Dict, List, Optional, Any
 import warnings
 warnings.filterwarnings('ignore')
@@ -506,3 +507,392 @@ class ExecutiveDashboard:
 # Global instance for use throughout the application
 executive_dashboard = ExecutiveDashboard()
 
+
+def show_executive_dashboard(analyzer):
+    """Render the Executive Summary dashboard using the provided analyzer.
+
+    Note: relies on st.session_state['filter_automakers'] and ['filter_top_n'] set in the sidebar.
+    """
+    st.markdown("## 📊 Executive Summary")
+    
+    try:
+        # Read filters from session state (populated in the main app sidebar)
+        selected_automakers = st.session_state.get('filter_automakers', [])
+        top_n = st.session_state.get('filter_top_n', 15)
+
+        # Get data
+        sales_summary = analyzer.get_sales_summary()
+        price_summary = analyzer.get_price_range_by_model()
+        
+        # Apply filters
+        if selected_automakers:
+            sales_summary = sales_summary[sales_summary['Automaker'].isin(selected_automakers)]
+            price_summary = price_summary[price_summary['Automaker'].isin(selected_automakers)]
+        
+        # Key metrics - Row 1
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
+        
+        with col1:
+            total_models = len(price_summary)
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-icon">🚗</div>
+                <div class="metric-value">{total_models}</div>
+                <div class="metric-label">Total Models</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            total_sales = sales_summary['total_sales'].sum() if not sales_summary.empty else 0
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-icon">📈</div>
+                <div class="metric-value">{int(total_sales):,}</div>
+                <div class="metric-label">Total Sales</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            avg_price = price_summary['price_mean'].mean() if not price_summary.empty else 0
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-icon">💰</div>
+                <div class="metric-value">€{avg_price:,.0f}</div>
+                <div class="metric-label">Avg Price</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col4:
+            automakers_count = sales_summary['Automaker'].nunique() if not sales_summary.empty else 0
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-icon">🏭</div>
+                <div class="metric-value">{automakers_count}</div>
+                <div class="metric-label">Automakers</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col5:
+            # Market share of top automaker
+            if not sales_summary.empty:
+                top_automaker_sales = sales_summary.groupby('Automaker')['total_sales'].sum().max()
+                total_sales_all = sales_summary['total_sales'].sum()
+                market_share_top = (top_automaker_sales / total_sales_all * 100) if total_sales_all > 0 else 0
+            else:
+                market_share_top = 0
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-icon">👑</div>
+                <div class="metric-value">{market_share_top:.1f}%</div>
+                <div class="metric-label">Top Market Share</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col6:
+            # Price range
+            if not price_summary.empty:
+                price_range = price_summary['price_mean'].max() - price_summary['price_mean'].min()
+            else:
+                price_range = 0
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-icon">📊</div>
+                <div class="metric-value">€{price_range:,.0f}</div>
+                <div class="metric-label">Price Range</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Charts
+        st.markdown('<div class="section-header">📊 Sales Performance Analysis</div>', unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("🚗 Top Models by Sales")
+            if not sales_summary.empty:
+                # Remove NaN values for chart
+                sales_clean = sales_summary.dropna(subset=['total_sales'])
+                if not sales_clean.empty:
+                    top_sales = sales_clean.nlargest(top_n, 'total_sales')
+                    fig_sales = px.bar(
+                        top_sales,
+                        x='Genmodel',
+                        y='total_sales',
+                        color='Automaker',
+                        title='',
+                        color_discrete_sequence=px.colors.qualitative.Set3,
+                        template="plotly_dark"
+                    )
+                    fig_sales.update_layout(
+                        xaxis_tickangle=-45,
+                        height=450,
+                        showlegend=True,
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        title_font_size=16
+                    )
+                    st.plotly_chart(fig_sales, use_container_width=True)
+                else:
+                    st.info("No valid sales data available")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("💰 Average Price by Automaker")
+            if not price_summary.empty:
+                # Remove NaN values for chart
+                price_clean = price_summary.dropna(subset=['price_mean'])
+                if not price_clean.empty:
+                    avg_price_by_maker = price_clean.groupby('Automaker')['price_mean'].mean().sort_values(ascending=False)
+                    fig_price = px.bar(
+                        x=avg_price_by_maker.index,
+                        y=avg_price_by_maker.values,
+                        title='',
+                        color=avg_price_by_maker.values,
+                        color_continuous_scale='Viridis',
+                        template="plotly_dark"
+                    )
+                    fig_price.update_layout(
+                        xaxis_tickangle=-45,
+                        height=450,
+                        showlegend=False,
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        title_font_size=16
+                    )
+                    st.plotly_chart(fig_price, use_container_width=True)
+                else:
+                    st.info("No valid price data available")
+            else:
+                st.info("No price data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        st.markdown("---")  # Separador visual
+        
+        # --- NUEVA SECCIÓN PARA EL TREEMAP ---
+        st.subheader("📊 Sales Volume by Market Segment")
+        try:
+            sales_by_segment_data = analyzer.get_sales_by_segment()
+            if not sales_by_segment_data.empty:
+                # Crear el Treemap
+                fig_treemap = px.treemap(
+                    sales_by_segment_data,
+                    path=[px.Constant("All Segments"), 'Price_Segment'],
+                    values='total_sales',
+                    color='Price_Segment',
+                    title='Contribution of Each Price Segment to Total Sales',
+                    color_discrete_map={
+                        'Budget': '#2a9d8f',
+                        'Mid-Range': '#e9c46a',
+                        'Premium': '#f4a261',
+                        'Luxury': '#e76f51',
+                        '(?)': '#a9a9a9'  # Color para el total
+                    },
+                    template="plotly_dark"
+                )
+                fig_treemap.update_layout(
+                    margin=dict(t=50, l=25, r=25, b=25),
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='white'),
+                    height=500
+                )
+                st.plotly_chart(fig_treemap, use_container_width=True)
+                
+                # Añadir información contextual sobre el Treemap
+                st.markdown("""
+                **📊 Market Segment Analysis:**
+                - **Size of rectangles**: Represents total sales volume for each segment
+                - **Color coding**: Consistent with market segmentation visualization
+                - **Market dominance**: Larger segments drive the majority of sales volume
+                """)
+                
+                # Mostrar estadísticas del Treemap
+                total_sales_all_segments = sales_by_segment_data['total_sales'].sum()
+                st.markdown("**🎯 Segment Contribution:**")
+                for _, row in sales_by_segment_data.iterrows():
+                    percentage = (row['total_sales'] / total_sales_all_segments) * 100
+                    st.markdown(f"- **{row['Price_Segment']}**: {row['total_sales']:,.0f} units ({percentage:.1f}%)")
+            else:
+                st.info("Sales by segment data is not available.")
+        except Exception as e:
+            st.error(f"Error rendering sales by segment treemap: {str(e)}")
+        # ------------------------------------
+        
+        # Additional Charts Section
+        st.markdown('<div class="section-header">🔍 Advanced Analytics</div>', unsafe_allow_html=True)
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("💹 Price vs Sales Correlation")
+            if not sales_summary.empty and not price_summary.empty:
+                # Merge sales and price data for correlation analysis
+                correlation_data = sales_summary.merge(
+                    price_summary[['Genmodel', 'price_mean']], 
+                    on='Genmodel', 
+                    how='inner'
+                ).dropna(subset=['total_sales', 'price_mean'])
+                
+                if not correlation_data.empty:
+                    fig_scatter = px.scatter(
+                        correlation_data,
+                        x='price_mean',
+                        y='total_sales',
+                        color='Automaker',
+                        size='total_sales',
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_scatter.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Average Price (€)",
+                        yaxis_title="Total Sales"
+                    )
+                    st.plotly_chart(fig_scatter, use_container_width=True)
+                else:
+                    st.info("No correlation data available")
+            else:
+                st.info("No data available for correlation analysis")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📊 Price Distribution by Category")
+            if not price_summary.empty:
+                # Create price categories
+                price_clean = price_summary.dropna(subset=['price_mean'])
+                if not price_clean.empty:
+                    # Define price categories
+                    price_clean_copy = price_clean.copy()
+                    price_clean_copy['Price Category'] = pd.cut(
+                        price_clean_copy['price_mean'],
+                        bins=[0, 20000, 40000, 60000, 100000, float('inf')],
+                        labels=['Budget (<€20K)', 'Mid-range (€20K-€40K)', 'Premium (€40K-€60K)', 'Luxury (€60K-€100K)', 'Super Luxury (>€100K)']
+                    )
+                    
+                    category_counts = price_clean_copy['Price Category'].value_counts()
+                    
+                    fig_pie = px.pie(
+                        values=category_counts.values,
+                        names=category_counts.index,
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_pie.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450
+                    )
+                    st.plotly_chart(fig_pie, use_container_width=True)
+                else:
+                    st.info("No price data available")
+            else:
+                st.info("No price data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Third Row - Box Plot and Heatmap
+        col5, col6 = st.columns(2)
+        
+        with col5:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📦 Price Distribution by Automaker")
+            if not price_summary.empty:
+                price_clean = price_summary.dropna(subset=['price_mean'])
+                if not price_clean.empty:
+                    # Get top 10 automakers by model count
+                    top_automakers = price_clean['Automaker'].value_counts().head(10).index
+                    price_filtered = price_clean[price_clean['Automaker'].isin(top_automakers)]
+                    
+                    fig_box = px.box(
+                        price_filtered,
+                        x='Automaker',
+                        y='price_mean',
+                        title='',
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3
+                    )
+                    fig_box.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_tickangle=-45,
+                        xaxis_title="Automaker",
+                        yaxis_title="Price (€)"
+                    )
+                    st.plotly_chart(fig_box, use_container_width=True)
+                else:
+                    st.info("No price data available")
+            else:
+                st.info("No price data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col6:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("🔥 Sales Heatmap by Year")
+            if not sales_summary.empty:
+                # Create a correlation matrix for sales data
+                sales_numeric = sales_summary.select_dtypes(include=[np.number])
+                if not sales_numeric.empty and len(sales_numeric.columns) > 1:
+                    correlation_matrix = sales_numeric.corr()
+                    
+                    fig_heatmap = px.imshow(
+                        correlation_matrix,
+                        title='',
+                        template="plotly_dark",
+                        color_continuous_scale='RdBu',
+                        aspect="auto"
+                    )
+                    fig_heatmap.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Variables",
+                        yaxis_title="Variables"
+                    )
+                    st.plotly_chart(fig_heatmap, use_container_width=True)
+                else:
+                    st.info("Insufficient numeric data for heatmap")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Data table
+        st.subheader("📋 Detailed Data")
+        if not sales_summary.empty:
+            st.dataframe(
+                sales_summary.style.format(
+                    {
+                        'price_mean': "€{:,.0f}",
+                        'price_min': "€{:,.0f}",
+                        'price_max': "€{:,.0f}",
+                        'total_sales': "{:,.0f}",
+                        'avg_sales': "{:,.1f}"
+                    },
+                    na_rep="N/A"
+                ),
+                use_container_width=True
+            )
+        else:
+            st.info("No data to display")
+            
+    except Exception as e:
+        st.error(f"Error rendering executive summary: {str(e)}")
+        import traceback
+        st.code(traceback.format_exc())

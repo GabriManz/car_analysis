@@ -8,6 +8,8 @@ trend analysis, and sales forecasting for automotive market analysis.
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
 from typing import Dict, List, Optional, Any
 import warnings
 warnings.filterwarnings('ignore')
@@ -739,4 +741,291 @@ class SalesDashboard:
 
 # Global instance for use throughout the application
 sales_dashboard = SalesDashboard()
+
+
+def show_sales_dashboard(analyzer):
+    """Render the Sales Performance dashboard using the provided analyzer.
+
+    Reads filters from st.session_state: 'filter_automakers', 'filter_top_n'.
+    """
+    st.markdown("## 📈 Sales Performance")
+    
+    try:
+        selected_automakers = st.session_state.get('filter_automakers', [])
+        top_n = st.session_state.get('filter_top_n', 15)
+
+        # Get data
+        sales_summary = analyzer.get_sales_summary()
+        
+        # Apply filters
+        if selected_automakers:
+            sales_summary = sales_summary[sales_summary['Automaker'].isin(selected_automakers)]
+        
+        # Sales trends
+        st.markdown('<div class="section-header">📈 Advanced Sales Performance Analytics</div>', unsafe_allow_html=True)
+        
+        # Sales Trend by Automaker
+        st.subheader("📈 Sales Trend by Automaker")
+        
+        # Preparamos los datos para el gráfico de tendencias competitivas
+        if not sales_summary.empty:
+            # Necesitamos obtener los datos originales de ventas para el análisis temporal
+            sales_data = analyzer.sales  # Acceso directo a los datos de ventas
+            
+            if not sales_data.empty:
+                # Transformamos los datos de ventas de formato ancho a largo
+                year_columns = [col for col in sales_data.columns if col.isdigit()]
+                
+                if year_columns:
+                    sales_long = pd.melt(
+                        sales_data,
+                        id_vars=['Automaker', 'Genmodel', 'Genmodel_ID'],
+                        value_vars=year_columns,
+                        var_name='Year',
+                        value_name='Sales_Volume'
+                    )
+                    
+                    # Aplicamos filtros si están seleccionados
+                    if selected_automakers:
+                        sales_long = sales_long[sales_long['Automaker'].isin(selected_automakers)]
+                    
+                    # Agrupamos por año y fabricante para obtener las ventas por fabricante
+                    yearly_sales_by_automaker = sales_long.groupby(['Year', 'Automaker'])['Sales_Volume'].sum().reset_index()
+                    yearly_sales_by_automaker['Year'] = pd.to_numeric(yearly_sales_by_automaker['Year'])  # Aseguramos que el año sea numérico
+
+                    # Creamos el gráfico de líneas competitivo con Plotly Express
+                    fig_trend = px.line(
+                        yearly_sales_by_automaker,
+                        x='Year',
+                        y='Sales_Volume',
+                        color='Automaker',  # ¡Esta es la línea clave para múltiples líneas!
+                        title='Sales Volume Trend by Automaker (2001-2020)',
+                        markers=True,  # Añade puntos en cada dato anual
+                        labels={'Sales_Volume': 'Total Sales', 'Year': 'Year'},
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.qualitative.Set3  # Paleta de colores distintiva
+                    )
+                    
+                    fig_trend.update_layout(
+                        xaxis_title='Year',
+                        yaxis_title='Total Sales Volume',
+                        showlegend=True,  # Mostramos la leyenda para identificar fabricantes
+                        legend=dict(
+                            orientation="h",
+                            yanchor="bottom",
+                            y=1.02,
+                            xanchor="right",
+                            x=1,
+                            font=dict(color="white", size=10)
+                        ),
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=500  # Aumentamos altura para acomodar la leyenda
+                    )
+                    
+                    # Añadimos anotaciones para eventos importantes (solo si hay datos)
+                    if 2016 in yearly_sales_by_automaker['Year'].values:
+                        # Calculamos el promedio de ventas en 2016 para posicionar la anotación
+                        sales_2016 = yearly_sales_by_automaker[yearly_sales_by_automaker['Year'] == 2016]['Sales_Volume'].mean()
+                        fig_trend.add_annotation(
+                            x=2016,
+                            y=sales_2016,
+                            text="Peak Year (2016)",
+                            showarrow=True,
+                            arrowhead=2,
+                            arrowcolor="red",
+                            bgcolor="rgba(255,255,255,0.8)",
+                            bordercolor="red",
+                            font=dict(color="black", size=12)
+                        )
+                    
+                    # Mostramos el gráfico
+                    st.plotly_chart(fig_trend, use_container_width=True)
+                    
+                    # Añadimos información adicional sobre las tendencias competitivas
+                    st.markdown("""
+                    **📊 Competitive Analysis Insights:**
+                    - **Market Leaders**: Compare performance of different automakers over time
+                    - **Growth Patterns**: Identify which brands show consistent growth vs volatility
+                    - **Market Share Evolution**: See how brand positions changed from 2001-2020
+                    - **Crisis Impact**: Observe how different brands responded to market challenges
+                    - **Peak Performance**: 2016 marked the highest overall market volume
+                    """)
+                    
+                    # Añadimos estadísticas rápidas si hay datos filtrados
+                    if selected_automakers:
+                        st.markdown("**🎯 Selected Automakers Analysis:**")
+                        for automaker in selected_automakers:
+                            automaker_data = yearly_sales_by_automaker[yearly_sales_by_automaker['Automaker'] == automaker]
+                            if not automaker_data.empty:
+                                peak_year = automaker_data.loc[automaker_data['Sales_Volume'].idxmax(), 'Year']
+                                peak_sales = automaker_data['Sales_Volume'].max()
+                                total_sales = automaker_data['Sales_Volume'].sum()
+                                st.markdown(f"- **{automaker}**: Peak in {peak_year} ({peak_sales:,.0f} units), Total: {total_sales:,.0f} units")
+                    
+                    st.markdown("---")  # Añadimos un separador visual
+                else:
+                    st.info("No yearly sales data available to display trend.")
+            else:
+                st.info("No sales data available for trend analysis.")
+        else:
+            st.info("No filtered sales data available to display trend.")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("🏆 Top Performing Models")
+            if not sales_summary.empty:
+                sales_clean = sales_summary.dropna(subset=['total_sales'])
+                if not sales_clean.empty:
+                    top_models = sales_clean.nlargest(top_n, 'total_sales')
+                    fig_bar = px.bar(
+                        top_models,
+                        x='total_sales',
+                        y='Genmodel',
+                        orientation='h',
+                        color='Automaker',
+                        title='',
+                        color_discrete_sequence=px.colors.qualitative.Set3,
+                        template="plotly_dark"
+                    )
+                    fig_bar.update_layout(
+                        height=450,
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        xaxis_title="Total Sales",
+                        yaxis_title="Model"
+                    )
+                    st.plotly_chart(fig_bar, use_container_width=True)
+                else:
+                    st.info("No valid sales data available")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("🎯 Sales Performance by Automaker")
+            if not sales_summary.empty:
+                sales_clean = sales_summary.dropna(subset=['total_sales'])
+                if not sales_clean.empty:
+                    sales_by_maker = sales_clean.groupby('Automaker')['total_sales'].sum().sort_values(ascending=False).head(15)
+                    fig_scatter = px.scatter(
+                        x=sales_by_maker.index,
+                        y=sales_by_maker.values,
+                        title='',
+                        color=sales_by_maker.values,
+                        color_continuous_scale='plasma',
+                        size=sales_by_maker.values,
+                        template="plotly_dark"
+                    )
+                    fig_scatter.update_layout(
+                        xaxis_tickangle=-45,
+                        height=450,
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        xaxis_title="Automaker",
+                        yaxis_title="Total Sales"
+                    )
+                    st.plotly_chart(fig_scatter, use_container_width=True)
+                else:
+                    st.info("No valid sales data available")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Additional Sales Analytics
+        st.markdown('<div class="section-header">🎯 Advanced Sales Analytics</div>', unsafe_allow_html=True)
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📊 Sales Distribution Analysis")
+            if not sales_summary.empty:
+                sales_clean = sales_summary.dropna(subset=['total_sales'])
+                if not sales_clean.empty:
+                    # Create sales categories
+                    sales_clean_copy = sales_clean.copy()
+                    sales_clean_copy['Sales Category'] = pd.cut(
+                        sales_clean_copy['total_sales'],
+                        bins=[0, 1000, 5000, 10000, 50000, float('inf')],
+                        labels=['Low (<1K)', 'Medium (1K-5K)', 'High (5K-10K)', 'Very High (10K-50K)', 'Exceptional (>50K)']
+                    )
+                    
+                    category_counts = sales_clean_copy['Sales Category'].value_counts()
+                    
+                    fig_bar = px.bar(
+                        x=category_counts.index,
+                        y=category_counts.values,
+                        title='',
+                        template="plotly_dark",
+                        color=category_counts.values,
+                        color_continuous_scale='plasma'
+                    )
+                    fig_bar.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Sales Category",
+                        yaxis_title="Number of Models",
+                        xaxis_tickangle=-45
+                    )
+                    st.plotly_chart(fig_bar, use_container_width=True)
+                else:
+                    st.info("No sales data available")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+            st.subheader("📈 Sales Performance Matrix")
+            if not sales_summary.empty:
+                sales_clean = sales_summary.dropna(subset=['total_sales'])
+                if not sales_clean.empty:
+                    # Create performance matrix by automaker
+                    performance_matrix = sales_clean.groupby('Automaker').agg({
+                        'total_sales': ['sum', 'mean', 'count']
+                    }).round(0)
+                    
+                    performance_matrix.columns = ['Total Sales', 'Avg Sales per Model', 'Model Count']
+                    performance_matrix = performance_matrix.sort_values('Total Sales', ascending=False).head(15)
+                    
+                    # Create scatter plot for performance matrix
+                    fig_scatter = px.scatter(
+                        performance_matrix,
+                        x='Model Count',
+                        y='Avg Sales per Model',
+                        size='Total Sales',
+                        color='Total Sales',
+                        title='',
+                        template="plotly_dark",
+                        color_continuous_scale='viridis',
+                        hover_data={'Total Sales': ':,.0f', 'Model Count': ':.0f', 'Avg Sales per Model': ':,.0f'}
+                    )
+                    fig_scatter.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        height=450,
+                        xaxis_title="Number of Models",
+                        yaxis_title="Average Sales per Model"
+                    )
+                    st.plotly_chart(fig_scatter, use_container_width=True)
+                else:
+                    st.info("No sales data available")
+            else:
+                st.info("No sales data available")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+    except Exception as e:
+        st.error(f"Error rendering sales performance: {str(e)}")
+        import traceback
+        st.code(traceback.format_exc())
 
