@@ -76,12 +76,12 @@ class CarDataAnalyzer:
             try:
                 # Load with optimized dtypes and proper encoding
                 try:
-                    df = pd.read_csv(file_path, encoding='utf-8')
+                    df = pd.read_csv(file_path, encoding='utf-8', nrows=100)
                 except UnicodeDecodeError:
                     try:
-                        df = pd.read_csv(file_path, encoding='latin-1')
+                        df = pd.read_csv(file_path, encoding='latin-1', nrows=100)
                     except UnicodeDecodeError:
-                        df = pd.read_csv(file_path, encoding='cp1252')
+                        df = pd.read_csv(file_path, encoding='cp1252', nrows=100)
                 
                 self.datasets[name] = self._optimize_dtypes(df)
                 
