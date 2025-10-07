@@ -697,7 +697,7 @@ def show_executive_dashboard(analyzer):
                     template="plotly_dark"
                 )
                 fig_treemap.update_layout(
-                    margin=dict(t=50, l=25, r=25, b=25),
+                    margin=dict(t=80, l=25, r=25, b=25),
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
                     font=dict(color='white'),
