@@ -22,14 +22,14 @@ Professional executive-grade dashboard for comprehensive car market analysis, of
 pip install -r requirements.txt
 
 # Run the application
-streamlit run src/app.py
+streamlit run app.py
 ```
 
 ### Streamlit Cloud Deployment
 1. Fork this repository
 2. Connect to [Streamlit Cloud](https://share.streamlit.io)
 3. Select this repository
-4. Set main file path to `src/app.py`
+4. Set main file path to `app.py`
 5. Deploy!
 
 ## 📊 Data Sources
@@ -90,7 +90,7 @@ The application uses professional theming with:
 ### Streamlit Cloud
 1. Push to GitHub
 2. Connect to Streamlit Cloud
-3. Set main file: `src/app.py`
+3. Set main file: `app.py`
 4. Deploy instantly
 
 ### Local Production
@@ -99,7 +99,7 @@ The application uses professional theming with:
 pip install -r requirements.txt
 
 # Run with production settings
-streamlit run src/app.py --server.headless true --server.port 8501
+streamlit run app.py --server.headless true --server.port 8501
 ```
 
 ## 📊 Performance
