@@ -81,3 +81,8 @@ coverage.xml
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Documentation files (keep local, exclude from repo)
+PRESENTATION_SCRIPT.md
+CODEBASE_SUMMARY.md
+KPI_DEFINITIONS.md
