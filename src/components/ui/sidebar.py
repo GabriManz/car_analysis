@@ -478,7 +478,7 @@ def render_sidebar(analyzer):
 
         page = st.sidebar.radio(
             "Select a Dashboard",
-            ["Executive Summary", "Market Analysis", "Sales Performance"]
+            ["Executive Summary", "Market Analysis", "Sales Performance", "Statistical Analysis"]
         )
 
     return selected_automakers, top_n, page
