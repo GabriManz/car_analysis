@@ -292,194 +292,72 @@ quality_score = (completeness * 0.4) + (uniqueness * 0.3) + (consistency * 0.3)
 
 > "Ahora veamos las **visualizaciones clave** que transforman estos KPIs en insights accionables. He diseñado cada gráfico con un propósito estratégico específico:"
 
-### **Dashboard Ejecutivo: Gráficos Principales**
+### **A. Executive Summary - Métricas Clave del Mercado**
 
-#### **1. KPI Cards (Tarjetas de Métricas)**
-> "En la parte superior del dashboard, tenemos **6 KPI cards** con las métricas más importantes:"
-- Total Models, Total Sales, Average Price, Automakers Count, Top Market Share, Price Range
-- **Diseño**: Cards con gradientes, hover effects, iconos descriptivos
-- **Valor**: Vista rápida del estado del mercado en 3 segundos
+**📊 KPIs Principales del Dashboard**
+> "En el Executive Summary vemos las métricas más importantes del mercado automovilístico:"
 
-#### **2. Top Models by Sales - Horizontal Bar Chart**
-**Tipo**: Barra horizontal
-**Propósito**: Identificar los modelos estrella del mercado
+- **619 Total Models**: Tenemos datos de 619 modelos diferentes analizados
+- **31.5M Total Sales**: Más de 31 millones de unidades vendidas en total
+- **€32,407 Avg Price**: Precio promedio del mercado de €32,407
+- **73 Automakers**: 73 fabricantes diferentes compitiendo
+- **12.9% Top Market Share**: El líder del mercado solo tiene 12.9% (mercado muy fragmentado)
+- **€287,136 Price Range**: Rango de precios desde €0 hasta €287,136
 
-> "Este gráfico muestra los **top 20 modelos** por volumen de ventas total:"
-- **Eje X**: Total de ventas (unidades)
-- **Eje Y**: Nombre del modelo
-- **Color**: Por fabricante (permite identificar dominio de marca)
-- **Orden**: Descendente (mayor ventas arriba)
+> "Estas métricas nos dan una visión general: es un mercado **altamente fragmentado** con **alta competencia** y un **amplio rango de precios**."
 
-**Insights que revela:**
-- "El modelo líder tiene 3-4x las ventas del modelo #10"
-- "Ciertos fabricantes dominan el top 20 (ej: Toyota con múltiples modelos)"
-- "Identifica oportunidades: gaps entre posiciones consecutivas"
+### **B. Market Analysis - Análisis de Concentración**
 
-#### **3. Average Price by Automaker - Bar Chart**
-**Tipo**: Barra vertical con gradiente de color
-**Propósito**: Posicionamiento de precio por fabricante
+**📊 Market Concentration Metrics**
+> "En el Market Analysis, lo más importante son las métricas de concentración:"
 
-> "Visualiza el precio promedio de cada fabricante, revelando su estrategia de mercado:"
-- **Eje X**: Fabricantes (ordenados de mayor a menor precio)
-- **Eje Y**: Precio promedio (€)
-- **Color**: Gradiente Viridis (azul oscuro a amarillo)
+- **HHI Index: 583** - Este es un índice muy bajo que indica **mercado altamente fragmentado**
+- **Top 3 Concentration: 31.6%** - Los 3 principales fabricantes solo controlan el 31.6%
+- **Top 5 Concentration: 43.2%** - Los 5 principales controlan menos de la mitad del mercado
+- **23 Significant Players** - Hay 23 fabricantes con más del 1% de cuota de mercado
 
-**Insights que revela:**
-- "Bentley, Rolls-Royce en la cima (>€150k) - ultra-luxury"
-- "Toyota, Hyundai en zona media-baja (€20k-30k) - volume players"
-- "Identifica posicionamiento competitivo inmediato"
+> "El sistema automáticamente clasifica esto como **'Fragmented Market - High competition'**. Esto significa que ningún fabricante domina el mercado y la competencia es muy intensa."
 
-#### **4. Market Share Pie Chart (Donut)**
-**Tipo**: Pie chart con hueco central (donut)
-**Propósito**: Distribución visual de cuotas de mercado
+### **C. Gráficos Clave del Dashboard**
 
-> "Un pie chart que muestra claramente quién domina el mercado:"
-- **Top 10 fabricantes** + segmento "Others"
-- **Percentages** visibles en cada segmento
-- **Colores distintivos** por fabricante
+**1. Market Share Pie Chart (Executive Summary)**
+> "El gráfico de pastel muestra la distribución real de cuota de mercado. Como pueden ver, **Ford lidera con 12.9%**, pero la fragmentación es evidente - ningún fabricante domina."
 
-**Insights que revela:**
-- "Visualización inmediata del líder vs competidores"
-- "El tamaño del segmento 'Others' indica fragmentación"
-- "Facilita comunicación con stakeholders no técnicos"
+**2. Price Distribution Histogram (Executive Summary)**
+> "El histograma revela que la mayoría de modelos se concentran en el rango de **€0-€50k**, con una cola larga hacia precios premium. Esto confirma que el mercado está dominado por vehículos asequibles."
 
-#### **5. Price vs Sales Correlation - Scatter Plot**
-**Tipo**: Scatter plot con burbujas de tamaño variable
-**Propósito**: Análisis de relación precio-volumen
+**3. Market Share vs Average Price Scatter Plot (Market Analysis)**
+> "Este gráfico de dispersión muestra la relación entre precio promedio y cuota de mercado. Los puntos amarillos representan los líderes de mercado, que se concentran en el rango de €35k-€45k - el 'punto dulce' del mercado."
 
-> "Un gráfico de dispersión que relaciona precio con ventas:"
-- **Eje X**: Precio promedio
-- **Eje Y**: Ventas totales
-- **Tamaño de burbuja**: Volumen total de ventas
-- **Color**: Por fabricante
+**4. Price Distribution by Category Pie Chart (Market Analysis)**
+> "La distribución por categorías confirma que el **58% del mercado** está en el segmento Mid-Range, seguido del 24.9% en Budget. Solo el 6.62% está en Premium y 1.55% en Luxury."
 
-**Insights que revela:**
-- "Sweet spot: modelos con alto volumen a precio razonable"
-- "Outliers: modelos de nicho (alto precio, bajo volumen) o bestsellers"
-- "Clusters naturales de mercado"
+**5. Sales Trend by Automaker (Sales Performance)**
+> "El gráfico de líneas muestra la evolución temporal de 2001-2020. **2016 fue el año pico** con el mayor volumen total. Pueden ver cómo diferentes fabricantes respondieron a crisis del mercado."
 
-#### **6. Sales Volume by Price Segment - Treemap**
-**Tipo**: Treemap jerárquico
-**Propósito**: Contribución de cada segmento al volumen total
+**6. Top Performing Models (Sales Performance)**
+> "El gráfico de barras horizontal muestra que **Fiesta lidera con 1.4M unidades**, seguido de Focus con 1.1M y Corsa con 0.9M. Son modelos de segmento B y C los que dominan las ventas."
 
-> "Un treemap que visualiza qué segmentos generan más ventas:"
-- **Rectángulos proporcionales** al volumen de ventas
-- **Colores por segmento**: Budget (verde), Mid-Range (amarillo), Premium (naranja), Luxury (rojo)
-- **Jerarquía**: "All Segments" → Segmentos individuales
+**7. Sales Performance by Automaker (Sales Performance)**
+> "El scatter plot muestra la relación entre número de modelos y ventas totales. Ford domina con 3.9M ventas, seguido de Vauxhall con 3.1M."
 
-**Insights que revela:**
-- "Budget y Mid-Range dominan el volumen (80%+ de ventas)"
-- "Luxury es pequeño en volumen pero alto en valor"
-- "Identifica dónde enfocar estrategias de volumen vs valor"
+**8. Sales Distribution Analysis (Sales Performance)**
+> "El análisis de distribución muestra que la mayoría de modelos están en la categoría 'Low' (<1K ventas), pero los modelos 'Very High' (10K-50K) representan una porción significativa."
 
-### **Dashboard de Análisis de Mercado: Gráficos Avanzados**
+**9. Sales Performance Matrix (Sales Performance)**
+> "La matriz de performance combina número de modelos, ventas promedio por modelo y ventas totales. Los bubbles más grandes representan los fabricantes con mayor volumen total."
 
-#### **7. Market Share vs Average Price - Bubble Chart**
-**Tipo**: Scatter plot con burbujas
-**Propósito**: Análisis de poder de mercado vs posicionamiento
+### **D. Insights Clave de los Gráficos**
 
-> "Relaciona cuota de mercado con estrategia de precio:"
-- **Eje X**: Precio promedio
-- **Eje Y**: Cuota de mercado (%)
-- **Tamaño**: Total de ventas
-- **Color**: Gradiente basado en market share
+> "Estos gráficos nos revelan **insights estratégicos importantes**:"
 
-**Insights estratégicos:**
-- **Cuadrante superior izquierdo**: High volume, low price (volume leaders)
-- **Cuadrante superior derecho**: High share, high price (premium powerhouses)
-- **Cuadrante inferior derecho**: Luxury brands (low volume, high price)
+1. **Mercado Fragmentado**: El HHI de 583 confirma alta competencia
+2. **Punto Dulce de Precios**: Los líderes se concentran en €35k-€45k
+3. **Dominio de Segmentos B/C**: Fiesta, Focus, Corsa lideran las ventas
+4. **Ciclo de Mercado**: 2016 fue el año pico, con recuperación post-crisis
+5. **Estrategia de Portfolio**: Ford y Vauxhall dominan con múltiples modelos exitosos
 
-#### **8. Market Positioning by Price Segment - Stacked Bar**
-**Tipo**: Barra apilada
-**Propósito**: Mostrar portfolio de cada fabricante
-
-> "Visualiza cuántos modelos tiene cada fabricante en cada segmento:"
-- **Eje X**: Fabricantes (top 20)
-- **Eje Y**: Número de modelos
-- **Segmentos apilados**: Budget, Mid-Range, Premium, Luxury
-
-**Insights que revela:**
-- "Fabricantes diversificados vs especializados"
-- "Toyota/Ford: amplio portfolio en todos los segmentos"
-- "Ferrari/Lamborghini: concentrados en Luxury"
-
-### **Dashboard de Ventas: Gráficos Temporales**
-
-#### **9. Sales Trend by Automaker - Multi-line Chart**
-**Tipo**: Gráfico de líneas múltiples con marcadores
-**Propósito**: Análisis temporal de competencia
-
-> "Muestra la evolución de ventas de cada fabricante 2001-2020:"
-- **Eje X**: Años (2001-2020)
-- **Eje Y**: Volumen de ventas
-- **Líneas múltiples**: Un color por fabricante
-- **Anotación**: Marca del peak (2016)
-
-**Insights que revela:**
-- "Crisis 2008: caída dramática visible en todas las líneas"
-- "Recovery 2009-2016: crecimiento sostenido"
-- "Post-2016: plateau o decline en algunos fabricantes"
-- "Winners vs losers en diferentes períodos"
-
-#### **10. Sales Performance Matrix - Scatter**
-**Tipo**: Scatter plot
-**Propósito**: Eficiencia de portfolio
-
-> "Relaciona número de modelos con ventas promedio por modelo:"
-- **Eje X**: Número de modelos en portfolio
-- **Eje Y**: Ventas promedio por modelo
-- **Tamaño**: Total de ventas del fabricante
-- **Color**: Gradiente Viridis
-
-**Insights estratégicos:**
-- **Cuadrante superior derecho**: Muchos modelos, cada uno vende bien (eficientes)
-- **Cuadrante superior izquierdo**: Pocos modelos, pero bestsellers (focalizados)
-- **Cuadrante inferior derecho**: Muchos modelos, ventas bajas (ineficientes - portfolio bloat)
-
-#### **11. Sales Distribution Analysis - Histogram with Categories**
-**Tipo**: Histograma categorizado
-**Propósito**: Distribución de performance
-
-> "Muestra cuántos modelos caen en cada categoría de ventas:"
-- Categorías: Low (<1K), Medium (1K-5K), High (5K-10K), Very High (10K-50K), Exceptional (>50K)
-- **Eje X**: Categorías
-- **Eje Y**: Número de modelos
-
-**Insights que revela:**
-- "Distribución típicamente skewed (cola larga a la derecha)"
-- "Mayoría de modelos en Low/Medium (regla 80/20)"
-- "Pocos modelos 'Exceptional' generan gran parte del volumen"
-
-### **Gráficos Adicionales de Calidad**
-
-#### **12. Price Distribution Box Plot**
-**Tipo**: Box plot por fabricante
-**Propósito**: Variabilidad y outliers de precio
-
-> "Muestra la dispersión de precios dentro de cada fabricante (top 10):"
-- **Boxes**: Q1, Median (Q2), Q3
-- **Whiskers**: Min/Max dentro de 1.5*IQR
-- **Puntos**: Outliers
-
-**Insights que revela:**
-- "Fabricantes con amplio rango (ej: Mercedes: Clase A hasta Clase S)"
-- "Fabricantes consistentes (ej: Ferrari: todo luxury)"
-- "Outliers identifican modelos especiales/edición limitada"
-
-#### **13. Correlation Heatmap**
-**Tipo**: Heatmap con escala divergente
-**Propósito**: Relaciones entre variables numéricas
-
-> "Matriz de correlaciones entre métricas clave:"
-- **Color scale**: Azul (correlación negativa) → Blanco (0) → Rojo (correlación positiva)
-- **Valores numéricos** en cada celda
-- **Variables**: price_mean, total_sales, avg_sales, max_sales, years_with_data
-
-**Insights que revela:**
-- "total_sales y avg_sales: correlación alta (0.95) - esperado"
-- "price_mean y total_sales: correlación baja/negativa (-0.23)"
-- "years_with_data y total_sales: correlación positiva (modelos longevos venden más acumulado)"
-
+---
 ---
 
 ## 5. DEMOSTRACIÓN EN VIVO (2-3 min)
