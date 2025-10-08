@@ -6,9 +6,9 @@ from src.components.dashboards.sales_dashboard import show_sales_dashboard
 
 def navigate(page, analyzer):
     """Navigates to the selected dashboard."""
-    if page == "Resumen Ejecutivo":
+    if page == "Executive Summary":
         show_executive_dashboard(analyzer)
-    elif page == "Análisis de Mercado":
+    elif page == "Market Analysis":
         show_market_dashboard(analyzer)
-    elif page == "Rendimiento de Ventas":
+    elif page == "Sales Performance":
         show_sales_dashboard(analyzer)

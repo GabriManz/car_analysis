@@ -624,6 +624,45 @@ def show_market_dashboard(analyzer):
         # Market share analysis
         st.markdown('<div class="section-header">🌍 Market Share & Distribution Analysis</div>', unsafe_allow_html=True)
         
+        # Market Concentration Metrics (HHI)
+        if not sales_summary.empty:
+            sales_clean = sales_summary.dropna(subset=['total_sales'])
+            if not sales_clean.empty:
+                market_share_full = sales_clean.groupby('Automaker')['total_sales'].sum().sort_values(ascending=False)
+                total_sales_market = market_share_full.sum()
+                market_share_pct = (market_share_full / total_sales_market * 100)
+                
+                # Calculate HHI
+                hhi_index = (market_share_pct ** 2).sum()
+                top_3_concentration = market_share_pct.head(3).sum()
+                top_5_concentration = market_share_pct.head(5).sum()
+                significant_players = (market_share_pct > 1).sum()
+                
+                st.markdown("### 📊 Market Concentration Metrics")
+                conc_cols = st.columns(4)
+                
+                with conc_cols[0]:
+                    st.metric("HHI Index", f"{hhi_index:.0f}")
+                
+                with conc_cols[1]:
+                    st.metric("Top 3 Concentration", f"{top_3_concentration:.1f}%")
+                
+                with conc_cols[2]:
+                    st.metric("Top 5 Concentration", f"{top_5_concentration:.1f}%")
+                
+                with conc_cols[3]:
+                    st.metric("Significant Players (>1%)", f"{significant_players}")
+                
+                # Interpretation
+                if hhi_index > 2500:
+                    st.warning("⚠️ **Highly Concentrated Market** - Oligopoly structure")
+                elif hhi_index > 1500:
+                    st.info("ℹ️ **Moderately Concentrated Market** - Competitive structure")
+                else:
+                    st.success("✅ **Fragmented Market** - High competition")
+                
+                st.markdown("---")
+        
         col1, col2 = st.columns(2)
         
         with col1:
