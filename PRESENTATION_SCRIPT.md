@@ -290,74 +290,222 @@ quality_score = (completeness * 0.4) + (uniqueness * 0.3) + (consistency * 0.3)
 
 ## 4. VISUALIZACIONES Y GRÁFICOS (4-5 min)
 
-> "Ahora veamos las **visualizaciones clave** que transforman estos KPIs en insights accionables. He diseñado cada gráfico con un propósito estratégico específico:"
+> "Ahora voy a recorrer la app en el mismo orden que verán en Streamlit: primero Executive Summary, luego Market Analysis y por último Sales Performance."
 
-### **A. Executive Summary - Métricas Clave del Mercado**
+### 🧭 Executive Summary
 
-**📊 KPIs Principales del Dashboard**
-> "En el Executive Summary vemos las métricas más importantes del mercado automovilístico:"
+#### 1) Executive Summary (KPI Cards)
+- **619 Total Models** · **31.5M Total Sales** · **€32,407 Avg Price** · **73 Automakers** · **12.9% Top Market Share** · **€287,136 Price Range**
+- Mensaje: Mercado grande, muy fragmentado y con amplio rango de precios.
 
-- **619 Total Models**: Tenemos datos de 619 modelos diferentes analizados
-- **31.5M Total Sales**: Más de 31 millones de unidades vendidas en total
-- **€32,407 Avg Price**: Precio promedio del mercado de €32,407
-- **73 Automakers**: 73 fabricantes diferentes compitiendo
-- **12.9% Top Market Share**: El líder del mercado solo tiene 12.9% (mercado muy fragmentado)
-- **€287,136 Price Range**: Rango de precios desde €0 hasta €287,136
+#### 2) Sales Performance Analysis
+- **Top Models by Sales (bar)**
+  - Cómo leer: barras ordenadas por volumen; hover para ver cifras exactas.
+  - **Lo que muestra**: Fiesta lidera con ~1.4M unidades, seguido de Focus (~1.1M), Corsa (~0.9M), Golf (~1.0M), Astra (~0.8M). Modelos de segmento B/C dominan.
+  - **Conclusiones clave**:
+    - **Dominio de segmento B/C**: Los 5 modelos top son todos de segmento B/C → "El mercado masivo se concentra en coches compactos y medianos"
+    - **Gap significativo**: Fiesta (1.4M) vs Focus (1.1M) = 300k diferencia → "Fiesta tiene ventaja competitiva clara"
+    - **Concentración de ventas**: Top 5 modelos representan ~5.2M de 31.5M total → "16.5% de modelos generan 16.5% de ventas (regla 80/20)"
+    - **Estrategia de portfolio**: Ford tiene 2 modelos en top 5 → "Diversificación exitosa vs dependencia de un solo hit"
+  - Responde: ¿qué modelos empujan el volumen total? ¿cuál es el gap entre #1 y #5?
+  - Decisiones: foco comercial, mix de producción, campañas por modelo.
+- **Average Price by Automaker (bar)**
+  - Cómo leer: fabricantes ordenados por precio medio; compara clusters low/mid/premium.
+  - **Lo que muestra**: Maybach (~220k), Rolls-Royce (~200k), Bentley (~180k) en la cima. Tesla, Porsche, BMW, Mercedes en rango premium. Toyota, Hyundai en zona media-baja (~20-30k).
+  - **Conclusiones clave**:
+    - **Segmentación clara**: 3 clusters bien definidos: Ultra-lujo (200k+), Premium (50-100k), Masivo (20-40k) → "Mercado bien segmentado por precio"
+    - **Tesla disruptor**: Tesla en rango premium (80-100k) vs marcas tradicionales → "Nuevos entrantes pueden competir en premium"
+    - **Gap de precio**: Salto de 40k (Toyota) a 80k (Tesla) → "Oportunidad en segmento 40-80k"
+    - **Estrategia de grupos**: BMW/Mercedes vs Toyota/Hyundai → "Dos estrategias: premium vs masivo"
+  - Responde: ¿quién compite en entry vs premium? ¿hay canibalización entre marcas del mismo grupo?
+  - Decisiones: reajuste de pricing/posicionamiento, bundles por marca.
+- **Sales Volume by Market Segment (treemap)**
+  - Cómo leer: rectángulos ∝ ventas; colores por segmento.
+  - **Lo que muestra**: Mid-Range (amarillo, 49.0%) y Budget (verde, 44.1%) dominan con 93% del volumen. Premium (naranja, 6.9%) y Luxury (0.0%) son nichos pequeños.
+  - **Diferencia clave vs Price Distribution by Category**: Este gráfico mide **VOLUMEN DE VENTAS** (unidades vendidas), mientras que Price Distribution mide **NÚMERO DE MODELOS** disponibles. Budget tiene 58% de modelos pero solo 44% de ventas → sobresaturación de oferta.
+  - **Conclusiones clave**:
+    - **Mercado masivo**: 93% de ventas en Budget + Mid-Range → "El mercado se concentra en precios accesibles"
+    - **Premium nicho**: Solo 6.9% de ventas en Premium → "Segmento premium es pequeño pero rentable"
+    - **Luxury inexistente**: 0.0% de ventas en Luxury → "Ultra-lujo no tiene volumen significativo"
+    - **Estrategia dual**: Volumen en masivo, margen en premium → "Necesario balance entre volumen y rentabilidad"
+  - Responde: ¿qué segmento domina el mercado? ¿cuál es el tamaño real de premium/luxury?
+  - Decisiones: estrategia de portfolio (volumen en Mid-Range, margen en Premium/Luxury).
 
-> "Estas métricas nos dan una visión general: es un mercado **altamente fragmentado** con **alta competencia** y un **amplio rango de precios**."
+#### 3) Advanced Analytics
+- **Price vs Sales Correlation (scatter)**
+  - Cómo leer: eje X precio medio; eje Y ventas; tamaño = volumen; color = marca.
+  - **Lo que muestra**: Mayoría de burbujas en esquina inferior izquierda (precios <100k, ventas <0.5M). Burbuja grande en superior izquierda (altas ventas, bajo precio). A medida que precio sube, ventas bajan (trade-off esperado).
+  - **Conclusiones clave**:
+    - **Trade-off confirmado**: Precio alto = ventas bajas → "Ley fundamental del mercado automovilístico"
+    - **Sweet spot identificado**: Burbuja grande en superior izquierda → "Existe un punto óptimo de precio-volumen"
+    - **Excepciones valiosas**: Burbujas en esquina superior derecha → "Algunos modelos premium venden bien (diferenciación)"
+    - **Estrategia de pricing**: Evitar esquina inferior derecha → "Precios altos sin diferenciación = fracaso"
+  - Responde: ¿existe un trade-off precio-volumen? ¿quién rompe la regla (caros que venden mucho)?
+  - Decisiones: identificar "sweet spot" de precio y excepciones por diferenciación.
+- **Price Distribution by Category (pie)**
+  - Cómo leer: porcentaje de modelos por tier de precio.
+  - **Lo que muestra**: Budget (<€20K) domina con 58%, Mid-range (€20K-€40K) 24.9%, Premium (€40K-€60K) 6.62%, Super Luxury (>€100K) 6.62%, Luxury (€60K-€100K) 3.88%. Budget + Mid-range = 82.9% del mercado.
+  - **Diferencia clave vs Sales Volume by Market Segment**: Este gráfico mide **DIVERSIDAD DE OFERTA** (número de modelos), mientras que Sales Volume mide **VOLUMEN DE VENTAS** (unidades vendidas). Mid-Range tiene solo 25% de modelos pero 49% de ventas → alta eficiencia de mercado.
+  - **Conclusiones clave**:
+    - **Sobresaturación Budget**: 58% de modelos vs 44% de ventas → "Mercado Budget saturado, competencia feroz"
+    - **Eficiencia Mid-Range**: 25% de modelos vs 49% de ventas → "Segmento Mid-Range muy eficiente"
+    - **Oportunidad Premium**: Solo 6.62% de modelos en Premium → "Espacio para más modelos premium"
+    - **Luxury nicho**: 3.88% de modelos en Luxury → "Segmento ultra-exclusivo"
+  - Responde: ¿estamos sesgados a Mid-Range? ¿espacio para ampliar Premium?
+  - Decisiones: reequilibrar roadmap por tier.
+- **Price Distribution by Automaker (box)**
+  - Cómo leer: caja (Q1–Q3), línea (mediana), whiskers y outliers.
+  - **Lo que muestra**: BMW y Mercedes-Benz con medianas 40-50k, bigotes hasta 70-80k, outliers >100k (premium). Citroen, Fiat, Ford, Hyundai, Nissan, Peugeot, Toyota, Vauxhall con medianas 10-25k (budget/mid-range). Toyota y Nissan con outliers premium.
+  - **Conclusiones clave**:
+    - **Estrategias claras**: BMW/Mercedes (premium puro) vs Ford/Toyota (masivo) → "Dos estrategias de portfolio bien definidas"
+    - **Outliers valiosos**: Toyota/Nissan con modelos premium → "Marcas masivas pueden competir en premium"
+    - **Amplitud de gama**: BMW/Mercedes con bigotes largos → "Portfolio amplio en premium"
+    - **Consistencia de precio**: Marcas masivas con cajas estrechas → "Enfoque en segmento específico"
+  - Responde: ¿qué marcas tienen portfolio amplio vs enfocado? ¿outliers que requieren narrativa?
+  - Decisiones: simplificar gama o ampliar según estrategia.
+- **Sales Heatmap by Year (heatmap)**
+  - Cómo leer: intensidad de color por métrica/año; patrones verticales/horizontales.
+  - **Lo que muestra**: Correlaciones fuertes (azul oscuro) entre total_sales, avg_sales, max_sales, min_sales, sales_std. years_with_data correlaciona positivamente con ventas (modelos longevos = más ventas acumuladas). sales_trend con correlaciones más débiles. Automaker_ID sin correlación (identificador).
+  - **Conclusiones clave**:
+    - **Correlaciones fuertes (azul oscuro)**: total_sales, avg_sales, max_sales, min_sales, sales_std están altamente correlacionadas → "Los modelos que venden mucho también tienen alta variabilidad de ventas y promedios altos"
+    - **years_with_data correlaciona con ventas**: Modelos con más años en el mercado tienen mayores ventas acumuladas → "La longevidad del modelo es predictor de éxito"
+    - **sales_trend correlaciones débiles**: La tendencia de crecimiento no está fuertemente ligada a las ventas totales → "El crecimiento no garantiza volumen total"
+    - **Automaker_ID sin correlación**: El identificador numérico no influye en el rendimiento → "El éxito no depende del orden de entrada al mercado"
+  - Responde: ¿años pico/valle? ¿métricas que co-varían?
+  - Decisiones: planificación de lanzamientos y capacidades.
 
-### **B. Market Analysis - Análisis de Concentración**
-
-**📊 Market Concentration Metrics**
-> "En el Market Analysis, lo más importante son las métricas de concentración:"
-
-- **HHI Index: 583** - Este es un índice muy bajo que indica **mercado altamente fragmentado**
-- **Top 3 Concentration: 31.6%** - Los 3 principales fabricantes solo controlan el 31.6%
-- **Top 5 Concentration: 43.2%** - Los 5 principales controlan menos de la mitad del mercado
-- **23 Significant Players** - Hay 23 fabricantes con más del 1% de cuota de mercado
-
-> "El sistema automáticamente clasifica esto como **'Fragmented Market - High competition'**. Esto significa que ningún fabricante domina el mercado y la competencia es muy intensa."
-
-### **C. Gráficos Clave del Dashboard**
-
-**1. Market Share Pie Chart (Executive Summary)**
-> "El gráfico de pastel muestra la distribución real de cuota de mercado. Como pueden ver, **Ford lidera con 12.9%**, pero la fragmentación es evidente - ningún fabricante domina."
-
-**2. Price Distribution Histogram (Executive Summary)**
-> "El histograma revela que la mayoría de modelos se concentran en el rango de **€0-€50k**, con una cola larga hacia precios premium. Esto confirma que el mercado está dominado por vehículos asequibles."
-
-**3. Market Share vs Average Price Scatter Plot (Market Analysis)**
-> "Este gráfico de dispersión muestra la relación entre precio promedio y cuota de mercado. Los puntos amarillos representan los líderes de mercado, que se concentran en el rango de €35k-€45k - el 'punto dulce' del mercado."
-
-**4. Price Distribution by Category Pie Chart (Market Analysis)**
-> "La distribución por categorías confirma que el **58% del mercado** está en el segmento Mid-Range, seguido del 24.9% en Budget. Solo el 6.62% está en Premium y 1.55% en Luxury."
-
-**5. Sales Trend by Automaker (Sales Performance)**
-> "El gráfico de líneas muestra la evolución temporal de 2001-2020. **2016 fue el año pico** con el mayor volumen total. Pueden ver cómo diferentes fabricantes respondieron a crisis del mercado."
-
-**6. Top Performing Models (Sales Performance)**
-> "El gráfico de barras horizontal muestra que **Fiesta lidera con 1.4M unidades**, seguido de Focus con 1.1M y Corsa con 0.9M. Son modelos de segmento B y C los que dominan las ventas."
-
-**7. Sales Performance by Automaker (Sales Performance)**
-> "El scatter plot muestra la relación entre número de modelos y ventas totales. Ford domina con 3.9M ventas, seguido de Vauxhall con 3.1M."
-
-**8. Sales Distribution Analysis (Sales Performance)**
-> "El análisis de distribución muestra que la mayoría de modelos están en la categoría 'Low' (<1K ventas), pero los modelos 'Very High' (10K-50K) representan una porción significativa."
-
-**9. Sales Performance Matrix (Sales Performance)**
-> "La matriz de performance combina número de modelos, ventas promedio por modelo y ventas totales. Los bubbles más grandes representan los fabricantes con mayor volumen total."
-
-### **D. Insights Clave de los Gráficos**
-
-> "Estos gráficos nos revelan **insights estratégicos importantes**:"
-
-1. **Mercado Fragmentado**: El HHI de 583 confirma alta competencia
-2. **Punto Dulce de Precios**: Los líderes se concentran en €35k-€45k
-3. **Dominio de Segmentos B/C**: Fiesta, Focus, Corsa lideran las ventas
-4. **Ciclo de Mercado**: 2016 fue el año pico, con recuperación post-crisis
-5. **Estrategia de Portfolio**: Ford y Vauxhall dominan con múltiples modelos exitosos
+> Clasificación de precios utilizada (cuantiles sobre `price_mean`):
+- **Budget**: Bottom 25% (≤ Q1)
+- **Mid-Range**: Q1–Q3 (25–75%)
+- **Premium**: Q3–Q95 (75–95%)
+- **Luxury**: Top 5% (> Q95)
 
 ---
+
+### 🌍 Market Analysis
+
+#### 1) Market Share & Distribution Analysis
+- **📊 Market Concentration Metrics**
+  - Cómo leer: HHI (∑ share²), Top3/Top5, nº de jugadores >1%.
+  - **Lo que muestra**: HHI = 583, Top 3 = 31.6%, Top 5 = 43.2%, 23 jugadores significativos (>1%). Sistema clasifica como "Fragmented Market - High competition".
+  - **Conclusiones clave**:
+    - **Mercado fragmentado**: HHI = 583 (<1500) → "Alta competencia, ningún monopolio"
+    - **Liderazgo débil**: Top 3 solo 31.6% → "Ningún fabricante domina el mercado"
+    - **Oportunidad de entrada**: 23 jugadores significativos → "Mercado accesible para nuevos entrantes"
+    - **Competencia saludable**: Fragmentación alta → "Innovación y eficiencia premiadas"
+  - Responde: ¿nivel de competencia? ¿riesgo de concentración?
+  - Decisiones: estrategia de entrada/defensa según fragmentación.
+- **Market Share by Automaker (pie/bar)**
+  - Cómo leer: top 10 + "Others"; atención al tamaño de "Others".
+  - **Lo que muestra**: Ford lidera con 19.7%, seguido de Vauxhall (15.1%), Volkswagen (13.5%), BMW (9.19%), Audi (8.58%), Mercedes-Benz (7.66%), Nissan (7.42%), Toyota (7.32%), Peugeot (6.61%), Honda (4.86%). Fragmentación evidente - ningún fabricante domina.
+  - **Conclusiones clave**:
+    - **Liderazgo relativo**: Ford 19.7% vs Vauxhall 15.1% → "Ford lidera pero sin dominancia absoluta"
+    - **Grupo alemán fuerte**: VW (13.5%) + BMW (9.19%) + Audi (8.58%) = 31.27% → "Grupo alemán domina premium"
+    - **Fragmentación extrema**: Top 10 suman ~100% → "Mercado muy fragmentado, sin 'Others' significativos"
+    - **Oportunidad de crecimiento**: Gap entre #1 (19.7%) y #2 (15.1%) → "Espacio para que Vauxhall crezca"
+  - Responde: ¿quién lidera realmente? ¿cuán parejo es el top?
+  - Decisiones: alianzas, pricing, distribución.
+- **Price Distribution Analysis (histogram)**
+  - Cómo leer: sesgo a la izquierda (muchos modelos económicos) y cola larga.
+  - **Lo que muestra**: Pico masivo en 0-50k (~340-350 modelos), segundo pico en 50-100k (~150 modelos). Distribución fuertemente sesgada hacia precios bajos. Muy pocos modelos >100k, casi ninguno >200k.
+  - **Conclusiones clave**:
+    - **Mercado masivo**: 70% de modelos en 0-50k → "El mercado se concentra en precios accesibles"
+    - **Oportunidad premium**: Solo 30% de modelos en 50k+ → "Espacio para más modelos premium"
+    - **Ultra-lujo nicho**: Muy pocos modelos >100k → "Segmento ultra-exclusivo"
+    - **Estrategia de pricing**: Evitar saturación en 0-50k → "Diferenciación en premium"
+  - Responde: ¿elasticidad potencial del mercado? ¿oportunidad en rangos poco poblados?
+  - Decisiones: lanzamiento de modelos en huecos de precio.
+
+#### 2) Market Trends & Analytics
+- **Market Share vs Average Price (bubble)**
+  - Cómo leer: X precio, Y cuota, tamaño volumen, color marca.
+  - **Lo que muestra**: Mayoría de puntos pequeños púrpuras (baja cuota, precios bajos). Dos burbujas grandes amarillo-verdes destacan: una en 20-25k con ~5% cuota, otra en 25-30k con ~6% cuota. Sweet spot en precios bajos (20-30k).
+  - **Conclusiones clave**:
+    - **Sweet spot identificado**: 20-30k con 5-6% cuota → "Precios bajos generan alta cuota de mercado"
+    - **Estrategia de volumen**: Precios bajos = alta cuota → "Competir por precio para ganar share"
+    - **Premium limitado**: Pocas burbujas grandes en precios altos → "Premium no genera alta cuota"
+    - **Oportunidad de diferenciación**: Espacio en 30-50k → "Posición intermedia poco explotada"
+  - Responde: ¿quién captura share cobrando más? ¿punto dulce €35–45k?
+  - Decisiones: subir/bajar precio para movernos hacia el cuadrante objetivo.
+- **Price Range Distribution (hist/box)**
+  - Cómo leer: dispersión global; identifica multimodalidad.
+  - **Lo que muestra**: Histograma azul con pico masivo en 0-10k (~260 modelos). Distribución fuertemente sesgada a la izquierda. Box plot estrecho hacia la izquierda, bigote largo hacia la derecha, múltiples outliers azules (modelos premium/luxury).
+  - **Conclusiones clave**:
+    - **Sesgo extremo**: Pico masivo en 0-10k → "Mercado dominado por modelos económicos"
+    - **Outliers valiosos**: Múltiples outliers en precios altos → "Modelos premium/luxury son excepciones"
+    - **Box plot estrecho**: Mediana cerca del mínimo → "La mayoría de modelos son económicos"
+    - **Bigote largo**: Cola larga hacia precios altos → "Amplio rango de precios pero pocos modelos"
+  - Responde: ¿segmentación natural? ¿necesidad de sub-marcas?
+  - Decisiones: arquitectura de marcas.
+- **Market Positioning by Price Segment (stacked bar)**
+  - Cómo leer: nº de modelos por segmento y fabricante.
+  - **Lo que muestra**: Citroen, Fiat, Ford, Peugeot, Renault con 18-27 modelos (predominantemente Budget/Mid-Range). Audi, BMW, Mercedes exclusivamente Premium/Luxury (BMW/Mercedes ~24 modelos, Audi ~12). Ferrari puramente Luxury (~13 modelos). Toyota, Honda, Hyundai con mix balanceado.
+  - **Conclusiones clave**:
+    - **Estrategias claras**: Masivos (Ford, Renault) vs Premium (BMW, Mercedes) → "Dos estrategias de portfolio bien definidas"
+    - **Diversificación exitosa**: Toyota, Honda con mix balanceado → "Estrategia de diversificación funciona"
+    - **Nicho premium**: BMW/Mercedes exclusivamente premium → "Enfoque en segmento premium rentable"
+    - **Ultra-lujo puro**: Ferrari solo luxury → "Estrategia de ultra-exclusividad"
+  - Responde: ¿diversificados (Ford/Toyota) vs nicho (Ferrari/Lambo)?
+  - Decisiones: expansión o foco por fabricante.
+
+---
+
+### 📈 Sales Performance
+
+#### 1) Advanced Sales Performance Analytics
+- **Sales Trend by Automaker (multi-line)**
+  - Cómo leer: líneas por marca 2001–2020; anotar 2008 y pico 2016.
+  - **Lo que muestra**: 73 líneas de colores diferentes (ABARTH, ACURA, AIXAM, ALFA ROMEO, AUDI, BMW, BENTLEY, etc.). Anotación "Peak Year (2016)" marca el máximo histórico. Líneas top alcanzan 200-250k unidades en 2016. Líneas suben desde 2001, pico en 2016, luego declive hacia 2020.
+  - **Conclusiones clave**:
+    - **Ciclo del mercado**: Pico en 2016, declive post-2016 → "Mercado maduro, posible saturación"
+    - **Crecimiento sostenido**: 2001-2016 crecimiento general → "Período de expansión del mercado"
+    - **Diferenciación de marcas**: Líneas top vs líneas bajas → "Algunas marcas dominan consistentemente"
+    - **Crisis 2008**: Impacto visible en algunas líneas → "Resiliencia diferenciada por marca"
+  - Responde: ¿quién crece sostenidamente? ¿quién es cíclico?
+  - Decisiones: inversiones y asignación comercial.
+- **Top Performing Models (bar)**
+  - Cómo leer: ranking acumulado; evaluar concentración en pocos hits.
+  - **Lo que muestra**: Fiesta lidera con ~1.5M, seguido de Focus (~1.2M), Corsa (~1M), Astra (~0.9M), Golf (~0.8M), Polo (~0.7M), Hatch (~0.6M), Qashqai (~0.55M), 3 Series (~0.5M), 1 Series/Yaris (~0.4M). Modelos de segmento B/C dominan.
+  - **Conclusiones clave**:
+    - **Dominio de segmento B/C**: Top 10 modelos son B/C → "El mercado masivo se concentra en compactos"
+    - **Ford lidera**: Fiesta + Focus = 2.7M → "Ford domina con dos superventas"
+    - **Concentración moderada**: Gap gradual entre posiciones → "No hay monopolio de un solo modelo"
+    - **Diversificación exitosa**: Múltiples marcas en top 10 → "Competencia saludable"
+  - Responde: ¿dependencia de superventas? ¿riesgo si cae el #1?
+  - Decisiones: diversificar o duplicar apuesta.
+- **Sales Performance by Automaker (bubble)**
+  - Cómo leer: X nº modelos, Y ventas promedio, tamaño = ventas totales.
+  - **Lo que muestra**: Ford domina con 4.065M (bubble azul oscuro), Vauxhall 3.121M (verde claro), Volkswagen 2.787M (gris/púrpura), BMW 1.895M (naranja oscuro), Audi 1.769M (púrpura claro), Mercedes-Benz 1.580M (rosa), Nissan 1.529M (rojo), Toyota 1.510M (verde). Bubbles más grandes = mayor volumen total.
+  - **Conclusiones clave**:
+    - **Ford dominante**: 4.065M vs #2 Vauxhall 3.121M → "Ford lidera con ventaja significativa"
+    - **Grupo alemán fuerte**: VW + BMW + Audi = 6.45M → "Grupo alemán domina premium"
+    - **Estrategias diferenciadas**: Ford (volumen) vs BMW (premium) → "Dos estrategias exitosas"
+    - **Competencia equilibrada**: Top 8 con 1.5-4M → "Mercado fragmentado pero con líderes claros"
+  - Responde: ¿portfolio eficiente (muchos modelos que venden bien) vs ineficiente?
+  - Decisiones: poda de gama o refuerzo.
+
+#### 2) Advanced Sales Analytics
+- **Sales Distribution Analysis (histogram)**
+  - Cómo leer: conteo por tier (Low→Exceptional).
+  - **Lo que muestra**: "Low (<1K)" domina con ~210 modelos (barra amarilla), seguido de "Very High (10K-50K)" ~165 modelos (naranja), "Medium (1K-5K)" ~150 modelos (rojo), "Exceptional (>50K)" ~130 modelos (púrpura), "High (5K-10K)" ~65 modelos (azul oscuro). Distribución típica 80/20.
+  - **Conclusiones clave**:
+    - **Long tail dominante**: 210 modelos "Low" vs 130 "Exceptional" → "Mayoría de modelos venden poco"
+    - **Distribución 80/20**: Pocos modelos excepcionales, muchos low performers → "Regla de Pareto confirmada"
+    - **Oportunidad de optimización**: 210 modelos low performers → "Espacio para mejorar o eliminar"
+    - **Estrategia dual**: Foco en excepcionales + optimización long tail → "Balance entre hits y eficiencia"
+  - Responde: ¿regla 80/20? ¿cuánto representa el long tail?
+  - Decisiones: long-tail optimization vs foco en top sellers.
+- **Sales Performance Matrix (scatter)**
+  - Cómo leer: cuadrantes (focalizados, eficientes, ineficientes, exploradores).
+  - **Lo que muestra**: Ford (bubble azul oscuro, 4.065M total sales), Vauxhall (verde claro, 3.121M), Volkswagen (gris/púrpura, 2.787M), BMW (naranja oscuro, 1.895M), Audi (púrpura claro, 1.769M), Mercedes-Benz (rosa, 1.580M), Nissan (rojo, 1.529M), Toyota (verde, 1.510M). Estrategias de portfolio claramente diferenciadas por tamaño de bubble.
+  - **Conclusiones clave**:
+    - **Ford líder absoluto**: 4.065M vs competencia → "Ford domina con estrategia de volumen"
+    - **Grupo alemán consolidado**: VW + BMW + Audi = 6.45M → "Estrategia premium exitosa"
+    - **Competencia equilibrada**: Top 8 con 1.5-4M → "Mercado fragmentado pero estable"
+    - **Estrategias diferenciadas**: Volumen (Ford) vs Premium (BMW) → "Dos modelos de negocio exitosos"
+  - Responde: ¿qué estrategia de portfolio sigue cada marca?
+  - Decisiones: priorización de inversiones por cuadrante.
+
 ---
 
 ## 5. DEMOSTRACIÓN EN VIVO (2-3 min)

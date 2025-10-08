@@ -996,25 +996,46 @@ def show_sales_dashboard(analyzer):
                     performance_matrix.columns = ['Total Sales', 'Avg Sales per Model', 'Model Count']
                     performance_matrix = performance_matrix.sort_values('Total Sales', ascending=False).head(15)
                     
+                    # Calculate market share for bubble size
+                    total_market_sales = performance_matrix['Total Sales'].sum()
+                    performance_matrix['Market Share (%)'] = (performance_matrix['Total Sales'] / total_market_sales * 100).round(1)
+                    
                     # Create scatter plot for performance matrix
                     fig_scatter = px.scatter(
                         performance_matrix,
                         x='Model Count',
                         y='Avg Sales per Model',
-                        size='Total Sales',
-                        color='Total Sales',
+                        size='Market Share (%)',
+                        color=performance_matrix.index,  # Use automaker names for color
                         title='',
                         template="plotly_dark",
-                        color_continuous_scale='viridis',
-                        hover_data={'Total Sales': ':,.0f', 'Model Count': ':.0f', 'Avg Sales per Model': ':,.0f'}
+                        color_discrete_sequence=px.colors.qualitative.Set3,
+                        hover_data={
+                            'Total Sales': ':,.0f', 
+                            'Model Count': ':.0f', 
+                            'Avg Sales per Model': ':,.0f',
+                            'Market Share (%)': ':.1f'
+                        }
                     )
+                    # Update hover template for better information
+                    fig_scatter.update_traces(
+                        hovertemplate='<b>%{legendgroup}</b><br>' +
+                                     'Modelos: %{x}<br>' +
+                                     'Ventas promedio: %{y:,.0f}<br>' +
+                                     'Ventas totales: %{customdata[0]:,.0f}<br>' +
+                                     'Market share: %{marker.size:.1f}%<br>' +
+                                     '<extra></extra>'
+                    )
+                    
                     fig_scatter.update_layout(
                         plot_bgcolor='rgba(0,0,0,0)',
                         paper_bgcolor='rgba(0,0,0,0)',
                         font=dict(color='white'),
                         height=450,
                         xaxis_title="Number of Models",
-                        yaxis_title="Average Sales per Model"
+                        yaxis_title="Average Sales per Model",
+                        legend_title="Automaker",
+                        showlegend=True
                     )
                     st.plotly_chart(fig_scatter, use_container_width=True)
                 else:
